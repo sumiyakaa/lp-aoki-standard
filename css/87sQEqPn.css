@@ -1,0 +1,50 @@
+/*
+ * Fonts by FONTPLUS (https://fontplus.jp/)
+ * (C) 2025 Fontworks Inc., a Monotype company. All rights reserved.
+ */
+/* Optima Nova */
+@font-face {
+    font-family: "Optima Nova";
+    font-weight: 300;
+    src: url(/v1/woff/87sQEqPn/01HQT6MBFYPC60P1KWNV4X0QXE/01HQT6N795ZAWM582Q3QEKEZ7B/0.woff2) format("woff2");
+    unicode-range: U+20-7e,U+a0-12b,U+12e-137,U+139-149,U+14c-17e,U+192,U+218-21b,U+237,U+2c6-2c7,U+2c9,U+2d8-2dd,U+394,U+3a9,U+3bc,U+3c0,U+2013-2014,U+2018-201a,U+201c-201e,U+2020-2022,U+2026,U+2030,U+2039-203a,U+2044,U+2122,U+e000-e087,U+e100-e11d,U+e30b-e30d,U+e320-e32a,U+e807-e808,U+f8ff,U+fb01-fb02;
+}
+
+@font-face {
+    font-family: "Optima Nova";
+    font-weight: 300;
+    src: url(/v1/woff/87sQEqPn/01HQT6MBFYPC60P1KWNV4X0QXE/01HQT6N795ZAWM582Q3QEKEZ7B/1.woff2) format("woff2");
+    unicode-range: U+20ac,U+2113,U+2126,U+212e,U+2202,U+2206,U+220f,U+2211-2212,U+2215,U+2219-221a,U+221e,U+222b,U+2248,U+2260,U+2264-2265,U+25ca;
+}
+
+/* Optima Nova */
+@font-face {
+    font-family: "Optima Nova";
+    font-weight: 500;
+    src: url(/v1/woff/87sQEqPn/01HQT6MCTX0HH3G90SDKBJ4PTM/01HQT6N78K9Q0YP5424VQM88ZE/0.woff2) format("woff2");
+    unicode-range: U+20-7e,U+a0-12b,U+12e-137,U+139-149,U+14c-17e,U+192,U+218-21b,U+237,U+2c6-2c7,U+2c9,U+2d8-2dd,U+394,U+3a9,U+3bc,U+3c0,U+2013-2014,U+2018-201a,U+201c-201e,U+2020-2022,U+2026,U+2030,U+2039-203a,U+2044,U+2122,U+e000-e087,U+e100-e11d,U+e30b-e30d,U+e320-e32a,U+e807-e808,U+f8ff,U+fb01-fb02;
+}
+
+@font-face {
+    font-family: "Optima Nova";
+    font-weight: 500;
+    src: url(/v1/woff/87sQEqPn/01HQT6MCTX0HH3G90SDKBJ4PTM/01HQT6N78K9Q0YP5424VQM88ZE/1.woff2) format("woff2");
+    unicode-range: U+20ac,U+2113,U+2126,U+212e,U+2202,U+2206,U+220f,U+2211-2212,U+2215,U+2219-221a,U+221e,U+222b,U+2248,U+2260,U+2264-2265,U+25ca;
+}
+
+/* Optima Nova */
+@font-face {
+    font-family: "Optima Nova";
+    font-weight: 700;
+    src: url(/v1/woff/87sQEqPn/01HQT6ME67V3YR9YMYRFKDHEZX/01HQT6N77P9DKBFHN92DQFKZXG/0.woff2) format("woff2");
+    unicode-range: U+20-7e,U+a0-12b,U+12e-137,U+139-149,U+14c-17e,U+192,U+218-21b,U+237,U+2c6-2c7,U+2c9,U+2d8-2dd,U+394,U+3a9,U+3bc,U+3c0,U+2013-2014,U+2018-201a,U+201c-201e,U+2020-2022,U+2026,U+2030,U+2039-203a,U+2044,U+2122,U+e000-e087,U+e100-e11d,U+e30b-e30d,U+e320-e32a,U+e807-e808,U+f8ff,U+fb01-fb02;
+}
+
+@font-face {
+    font-family: "Optima Nova";
+    font-weight: 700;
+    src: url(/v1/woff/87sQEqPn/01HQT6ME67V3YR9YMYRFKDHEZX/01HQT6N77P9DKBFHN92DQFKZXG/1.woff2) format("woff2");
+    unicode-range: U+20ac,U+2113,U+2126,U+212e,U+2202,U+2206,U+220f,U+2211-2212,U+2215,U+2219-221a,U+221e,U+222b,U+2248,U+2260,U+2264-2265,U+25ca;
+}
+
+/* Generated at 2025-09-02T02:49:56.139Z */
