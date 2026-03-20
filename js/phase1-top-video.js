@@ -1,18 +1,19 @@
-﻿(function () {
+(function () {
   var mount = document.getElementById("phase1-top-video");
   if (!mount) return;
 
   var videoParams = 'rel=0&autoplay=1&mute=1&loop=1&playlist=c6VO8KRLlfo&fs=0&controls=0';
   var videoUrl = 'https://www.youtube.com/embed/c6VO8KRLlfo?' + videoParams;
 
+  // Only create the iframe needed for the current viewport
+  var isSp = (window.innerWidth || document.documentElement.clientWidth || 0) <= 840;
+  var wrapClass = isSp ? 'phase1-mv-iframe phase1-mv-iframe-sp' : 'phase1-mv-iframe phase1-mv-iframe-pc';
+
   mount.innerHTML = [
     '<div class="phase1-mv">',
     '  <div class="phase1-mv-video">',
-    '    <div class="phase1-mv-iframe phase1-mv-iframe-pc">',
-    '      <iframe src="' + videoUrl + '" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>',
-    '    </div>',
-    '    <div class="phase1-mv-iframe phase1-mv-iframe-sp">',
-    '      <iframe src="' + videoUrl + '" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>',
+    '    <div class="' + wrapClass + '">',
+    '      <iframe src="' + videoUrl + '" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>',
     '    </div>',
     '    <div class="phase1-mv-click-guard" aria-hidden="true"></div>',
     '  </div>',

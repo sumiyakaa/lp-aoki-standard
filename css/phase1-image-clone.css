@@ -104,6 +104,7 @@ html {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  contain: layout paint;
 }
 
 #phase1-rotating-rings .phase1-ring text {
@@ -579,11 +580,10 @@ html {
 #phase1-message-visual .phase1-message-visual-base,
 #phase1-message-visual .phase1-message-visual-pc,
 #phase1-message-visual .phase1-message-visual-sp {
-  filter: grayscale(100%) blur(40px);
+  filter: grayscale(100%) blur(20px);
   opacity: 0;
   transition-property: opacity, filter;
   transition-timing-function: ease;
-  will-change: opacity, filter;
 }
 
 #phase1-message-visual .phase1-message-visual-base {
@@ -606,6 +606,7 @@ html {
 #phase1-message-visual .phase1-message-visual-sp.is-revealed {
   filter: none;
   opacity: 1;
+  will-change: auto;
 }
 
 @media (max-width: 540px) {
@@ -758,19 +759,19 @@ html {
 }
 
 #phase1-item-lineup .phase1-item-lineup-layer {
-  filter: grayscale(100%) blur(40px);
+  filter: grayscale(100%) blur(20px);
   opacity: 0;
   transform: translate(0, 0);
   transition-property: opacity, filter;
   transition-duration: 600ms;
   transition-delay: 100ms;
   transition-timing-function: ease;
-  will-change: opacity, filter;
 }
 
 #phase1-item-lineup .phase1-item-lineup-layer.is-revealed {
   filter: none;
   opacity: 1;
+  will-change: auto;
 }
 
 #phase1-item-lineup .phase1-item-lineup-flow-copy-layer {
@@ -782,7 +783,7 @@ html {
 
 #phase1-item-lineup .phase1-item-lineup-copy {
   color: #5f79ad;
-  filter: grayscale(100%) blur(40px);
+  filter: grayscale(100%) blur(20px);
   margin: 0;
   opacity: 0;
   position: absolute;
@@ -791,12 +792,12 @@ html {
   transition-duration: 600ms;
   transition-property: opacity, filter;
   transition-timing-function: ease;
-  will-change: opacity, filter;
 }
 
 #phase1-item-lineup .phase1-item-lineup-copy.is-revealed {
   filter: none;
   opacity: 1;
+  will-change: auto;
 }
 
 #phase1-item-lineup .phase1-item-lineup-copy--01 {
@@ -1485,20 +1486,20 @@ html {
 }
 
 #phase1-left-overlay .phase1-left-overlay-layer {
-  filter: grayscale(100%) blur(40px);
+  filter: grayscale(100%) blur(20px);
   opacity: 0;
   transform: translate(0, 20px);
   transition-delay: 100ms;
   transition-duration: 600ms;
   transition-property: opacity, filter, transform;
   transition-timing-function: ease;
-  will-change: opacity, filter, transform;
 }
 
 #phase1-left-overlay .phase1-left-overlay-layer.is-revealed {
   filter: none;
   opacity: 1;
   transform: translate(0, 0);
+  will-change: auto;
 }
 
 @media (max-width: 1140px) {

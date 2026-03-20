@@ -1,4 +1,4 @@
-﻿(function () {
+(function () {
   function optimizeMediaLoading() {
     var vh = window.innerHeight || document.documentElement.clientHeight || 800;
     var imgs = document.querySelectorAll('img');
@@ -54,21 +54,29 @@
   var observer = null;
   var wheelBound = false;
   var pendingFrame = null;
-  var observerConfig = {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['style']
-  };
+  var isMutating = false;
+
+  // Only target elements likely to have overflow issues, not every DOM node
+  var SCROLL_TARGETS = [
+    '#phase1-image-clone',
+    '#phase1-top-video',
+    '#phase1-item-lineup',
+    '#phase1-message-visual',
+    '#phase1-left-overlay',
+    '#phase1-information-text',
+    '.phase1-mv-video',
+    '.phase1-item-lineup-stage',
+    '.phase1-item-lineup-body'
+  ].join(',');
 
   function forceSingleScroll() {
     if (!isPc()) return;
 
-    if (observer) observer.disconnect();
+    isMutating = true;
 
     forceWindowSingleScrollRoot();
 
-    var nodes = document.querySelectorAll('body *');
+    var nodes = document.querySelectorAll(SCROLL_TARGETS);
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
       if (!el || isRoot(el)) continue;
@@ -80,9 +88,7 @@
       }
     }
 
-    if (observer) {
-      observer.observe(document.body, observerConfig);
-    }
+    isMutating = false;
   }
 
   function nearestScrollableAncestor(node) {
@@ -124,21 +130,28 @@
     if (!document.body) return;
     if (observer) observer.disconnect();
     observer = new MutationObserver(function () {
+      // Skip mutations caused by our own style changes
+      if (isMutating) return;
       if (pendingFrame) return;
       pendingFrame = requestAnimationFrame(function () {
         pendingFrame = null;
         forceSingleScroll();
       });
     });
-    observer.observe(document.body, observerConfig);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['style']
+    });
   }
 
+  var resizeTimer = null;
   window.addEventListener('load', function () {
     optimizeMediaLoading();
     forceSingleScroll();
     setTimeout(forceSingleScroll, 300);
     setTimeout(forceSingleScroll, 1200);
-    setTimeout(forceSingleScroll, 2200);
     startObserver();
     bindWheelToWindowScroll();
   });
@@ -148,6 +161,7 @@
   });
 
   window.addEventListener('resize', function () {
-    forceSingleScroll();
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(forceSingleScroll, 150);
   });
 })();
