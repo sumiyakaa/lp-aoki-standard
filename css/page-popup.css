@@ -1,0 +1,1217 @@
+/* ==========================================================================
+   page-popup.css — the BLUE WOODS No.1 feature page, and nothing else.
+
+   Loaded third, after base.css and motion.css. Both of those are frozen: this
+   file sets their variables and adds what is specific to the feature page, and
+   restates nothing. Container widths, section rhythm, cards, grids, buttons,
+   the 54φ and 78φ controls, the header and the footer all already exist.
+
+   What this page is for (設計図 §2 深度設計). index is the quiet end of the
+   site — off-white, no red, no stack. women and men make the three-layer
+   stack the subject. This is the far end: the ground turns to the anchor's
+   cream, --red and --ink-deep are used freely for the first time, and the
+   section rhythm opens from 160px to the 200px measured on the feature page.
+
+   Four rules govern what is allowed in here:
+
+   1. ONE shadow, and it is named. The site's principle is no shadows at all;
+      the anchor's feature page measures 15, all of them under the collage of
+      white-edged photographs. `--shadow-polaroid` is declared once in the page
+      token block below and `.polaroid` is the only selector that reads it.
+      `text-shadow` remains banned outright, and no other block here carries a
+      `box-shadow`.
+   2. No `aspect-ratio`. Every picture box takes an explicit height, so the
+      WebKit collapse (stretched track × aspect-ratio × absolute child) cannot
+      occur. The masked video and the stack plates size from paired `vw`
+      values instead, which holds a ratio without the property.
+   3. Product copy is placed by NAMED ANCHOR. Six positions are declared once;
+      each item names one. The build before last wrote a coordinate per item
+      per breakpoint — ~160 declarations — and [09] and [10] were off screen
+      from launch to retirement.
+   4. Every colour is a `var()`. The one composite value that needs a channel
+      of its own, the collage shadow, is a token in the block below rather than
+      an `rgba()` loose in a rule.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Page tokens
+   -------------------------------------------------------------------------- */
+body[data-page="popup"] {
+  /* ⚠ 200px, not base.css's 160. Measured on the anchor's feature page
+     (#first_articles / #second_articles); 160 is the home page's figure and
+     belongs to index.html. Carrying the SP steps down in the same ratio. */
+  --space-section: 200px;
+
+  /* The feature page's ground. This is the change of paper that the whole
+     depth design turns on, so it is set on <body> rather than on a band. */
+  background: var(--paper);
+
+  /* The one shadow on the site. Named so it cannot spread: see rule 1.
+     Composed from the ink at 14% — soft enough to read as a print laid on a
+     table rather than as a card floating over a UI. */
+  --shadow-polaroid: 0 2px 10px rgba(28, 41, 64, .14);
+}
+
+@media (max-width: 900px) { body[data-page="popup"] { --space-section: 150px; } }
+@media (max-width: 540px) { body[data-page="popup"] { --space-section: 120px; } }
+
+/* The anchor opens its feature page 150px from the top of the viewport and the
+   fixed header is 130px, so the first view needs 20px and not a section gap. */
+.site-main > .section:first-child { margin-top: 20px; }
+
+/* --------------------------------------------------------------------------
+   Small parts shared by several sections
+   -------------------------------------------------------------------------- */
+
+/* Line drawings — stroked, never filled, colour taken from the element. */
+.linework {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The anchor's two red marks. The triple stamp runs 16px square × 3 at 4px
+   apart; the triple dot is 54×18 overall. They are never used together in one
+   block, and a vertical heading never appears without one of them beside it. */
+.deco { display: block; flex: none; fill: var(--red); }
+
+/* Vertical labels hung in the outer margin of the first view. */
+.vlabel {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.vlabel--left  { top: 118px;    left:  max(14px, calc(50% - 720px - 34px)); }
+.vlabel--right { bottom: 148px; right: max(14px, calc(50% - 720px - 34px)); }
+
+.vlabel__text {
+  writing-mode: vertical-rl;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .24em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.vlabel__rule { display: block; width: 1px; height: 64px; background: var(--red); }
+
+@media (max-width: 1024px) { .vlabel { display: none; } }
+
+/* Section heads. Three variants off one element so the eight sections never
+   announce themselves the same way twice: --h sets the English name over a
+   Japanese line, --v hangs the Japanese vertically beside a vertical English
+   label, --c centres the pair under a red triple dot. The English names are
+   the brief's own and are reproduced exactly. */
+.phead {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+}
+
+.phead__en {
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .3em;
+  color: var(--red);
+}
+
+.phead__ja {
+  font-size: clamp(23px, 2.5vw, 34px);
+  font-weight: 300;
+  line-height: 1.42;
+  letter-spacing: -.03em;
+  color: var(--ink-deep);
+}
+
+.phead--c { align-items: center; text-align: center; }
+
+/* Vertical variant. `.h2-vertical` in base.css supplies the 48px vertical
+   setting; only the pairing with the small red English label is added here. */
+.phead--v { flex-direction: row; align-items: flex-start; gap: 14px; }
+
+.phead--v .phead__ja { color: var(--ink-deep); }
+
+.phead--v .phead__en {
+  writing-mode: vertical-rl;
+  padding-top: 4px;
+  letter-spacing: .28em;
+}
+
+/* The block a vertical heading sits in: stamp, heading, a 12px vertical
+   standfirst and a vertical year, all top-aligned in a row. Mirrored on the
+   second item section so the two never read as the same device. */
+.vhead {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 12px;
+}
+
+.vhead--right { justify-content: flex-end; }
+
+.vhead__lead {
+  writing-mode: vertical-rl;
+  font-size: var(--fs-small);
+  line-height: 2;
+  letter-spacing: .08em;
+  color: var(--ink-sub);
+}
+
+.vhead__year {
+  writing-mode: vertical-rl;
+  margin-left: 34px;
+  font-size: var(--fs-nav);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: .26em;
+  color: var(--ink-sub);
+}
+
+.vhead--right .vhead__lead { margin-right: 10px; }
+
+/* Centred head — the red triple dot above, the pair below. */
+.chead {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 92px;
+}
+
+/* Pills. Two faces, both measured on the anchor: an outlined white one and a
+   filled deep-ink one whose text takes the page's own paper colour. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding-inline: 18px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: var(--ink-rev);
+  font-size: var(--fs-small);
+  line-height: 1;
+  letter-spacing: .06em;
+}
+
+.pill--ink {
+  border-color: var(--ink-deep);
+  background: var(--ink-deep);
+  color: var(--paper);
+}
+
+@media (max-width: 900px) {
+  /* Vertical setting stops earning its space once the column is narrow: the
+     heading becomes taller than the screen and the standfirst turns into a
+     column of one character. Everything lies down together. */
+  .vhead,
+  .phead--v {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 12px 16px;
+  }
+
+  .phead--v .phead__ja,
+  .phead--v .phead__en,
+  .vhead__lead,
+  .vhead__year { writing-mode: horizontal-tb; }
+
+  .vhead__lead  { line-height: 1.8; }
+  .vhead__year  { margin-left: 0; }
+  .vhead .deco  { margin-top: 6px; }
+  .chead        { padding-bottom: 56px; }
+}
+
+/* --------------------------------------------------------------------------
+   1 — FIRST VIEW
+
+   One 1440×970 stage carrying three plates. Paint order is type, then the red
+   frame, then the masked video, so the mask's hem crosses the frame — the
+   overlap is the composition, and stacking the frame under the type instead
+   would flatten it back into three separate objects.
+
+   The stage's height is a `vw` clamp rather than a ratio, so in the fluid
+   range the box holds 1440:970 exactly and every child can be placed in
+   percentages of it. That is what keeps the composition identical at 1100px
+   and at 1440 without a value per breakpoint.
+   -------------------------------------------------------------------------- */
+.fv {
+  position: relative;
+  overflow-x: hidden;
+  overflow-x: clip;
+  /* base.css caps the token at 140px only above 1555px; the anchor measures
+     140 at 1440, so the fluid term is raised to land there. */
+  --fs-marquee: clamp(56px, 9.72vw, 140px);
+}
+
+.fv__stage {
+  position: relative;
+  width: min(1440px, 100%);
+  height: clamp(700px, 76.4vw, 1100px);
+  margin-inline: auto;
+}
+
+/* --- 1. the character, behind everything ---------------------------------
+   The reference's first view is built on one enormous character, and losing
+   it was what made ours read as a different design rather than a translation
+   of the same one. 「青」 is the only character that carries all three of
+   this site's names at once: the brand (青木), the pop-up (BLUE WOODS, 青い森)
+   and the ink the whole site is set in.
+
+   ⚠ It is a PATH lifted from Zen Kaku Gothic New 700, not live <text>. The
+   largest object on the page must not wait on a webfont — set as text it
+   would draw once in the fallback face and jump when the real one lands,
+   during the opening, which is the worst possible moment. The path also lets
+   the stroke below thicken the strokes.
+
+   The 26-unit round pen is the translation of the reference's brush: its
+   character's strokes are swollen until they nearly merge and every terminal
+   is round. 26 is the ceiling — the three counters are 39 units tall and a
+   heavier pen closes them. */
+/* The name, set as the field the whole first view stands on — the role the
+   reference gives its two-character block. It is two lines rather than one
+   because a single English word at this width comes out long and low, and
+   what the composition needs is a MASS: 1300 × 540 is close to the reference's
+   own block, where one line of four letters would have been 1300 × 250.
+
+   Both lines are forced to the same measure with `textLength`, so the block
+   has two flush edges and reads as a solid field rather than as a heading that
+   happens to be large. `lengthAdjust="spacing"` opens the letter gaps to get
+   there and leaves the letterforms themselves alone — BLUE is four glyphs
+   filling what WOODS fills with five, so it simply tracks wider. */
+.fv__word {
+  position: absolute;
+  z-index: 1;
+  left: 4.86%;         /* (1440 − 1300) / 2 / 1440 */
+  top: 13.6%;          /* 150 / 1100 */
+  width: 90.3%;        /* 1300 / 1440 */
+  aspect-ratio: 1300 / 650;
+  display: block;
+}
+
+/* A size per line, so that four letters and five letters both arrive at the
+   measure with the gaps almost closed. One size for both would have left BLUE
+   tracked so far apart that the picture in front of it hid two of its four
+   letters and the word stopped being a word. */
+.fv__word text {
+  font-family: var(--font);
+  font-weight: 700;
+  fill: url(#fvWord);
+}
+
+.fv__word-a { font-size: 430px; }
+.fv__word-b { font-size: 340px; }
+
+/* ⚠ Colour is set here and NOT as a presentation attribute on the SVG.
+   `fill="var(--red)"` resolves in Blink and WebKit and does not resolve in
+   Firefox, which is the sort of difference that only shows up after launch. */
+.s-ink  { stop-color: var(--ink); }
+.s-deep { stop-color: var(--ink-deep); }
+.s-sky  { stop-color: var(--ink-sky); }
+
+/* --- 2. the red frame, BELOW the picture --------------------------------
+   The reference runs its frame straight through the middle of its crop, and
+   that works there because what it crosses is a solid character block: the
+   crop interrupts the running text and the text picks up again on the far
+   side. Ours crossed a photograph, and the result was a date nobody could
+   read cut in half by a tree. Moved clear of the picture entirely — the
+   overlap was never the point, the layering was, and the layering is now
+   between the picture and the name behind it. */
+.fv__frame {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  top: 75.5%;          /* 830 / 1100 */
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  width: min(1260px, 92%);
+  height: 17.3%;       /* 190 / 1100 */
+  /* Heavy, not hairline. At 1px the frame read as a guide someone had left in
+     rather than as part of the drawing, and it lost every contest with the
+     140px type running through it. Scaled with the viewport so it stays a
+     drawn line and never becomes a slab on a phone. */
+  border: clamp(4px, .62vw, 9px) solid var(--red);
+  /* Measured 300px/100px — an elliptical cap, not a stadium. In percent so it
+     stays elliptical at every width. */
+  border-radius: 24% / 50%;
+  /* Both axes, overriding motion.css's single-axis `clip`. An overflow clip
+     only follows `border-radius` when both axes clip; with one axis the box
+     stays rectangular and the running text shows in the corners outside the
+     ellipse. Setting both to `hidden` cannot promote the other axis to `auto`,
+     which is the reason the rest of the site uses the two-step. */
+  overflow: hidden;
+}
+
+/* --- 3. the masked film, in front of both --------------------------------
+   Centred on the same axis as the character rather than set beside it. The
+   reference stacks its crop on its character and lets the two read as one
+   mass; splitting them left and right, which is what this was, gave two
+   separate pictures and no first view.
+
+   ⚠ `aspect-ratio` is safe here and is in fact required: the mask is sized
+   `100% 100%`, so any change to the box's proportion stretches the tree. The
+   WebKit collapse this file avoids elsewhere needs a STRETCHED GRID TRACK as
+   well as `aspect-ratio` and an absolute child — this is an absolutely
+   positioned element in a plain positioned parent, so that track never
+   exists. */
+/* Placed so the overlap says something: the crown sits across BLUE and the
+   trunk crosses WOODS. A tree covering a word about woods is a composition;
+   a shape parked over the middle of a block of type is an accident. */
+.fv-mark {
+  position: absolute;
+  z-index: 3;
+  left: 30.6%;         /* (1440 − 560) / 2 / 1440 */
+  top: 5%;             /* 55 / 1100 */
+  width: 38.9%;        /* 560 / 1440 */
+  aspect-ratio: 557 / 665;
+}
+
+/* --- 4. the title, under the frame ---------------------------------------
+   A caption, not a headline. The character above is doing the work the giant
+   English lockup used to do, and two things that size compete rather than
+   compose — which is exactly what the reference avoids by carrying no English
+   display type in its first view at all. */
+/* The name is already set 300px high behind the picture, so the line under the
+   frame carries only what the field cannot: which pop-up, and where. Screen
+   readers still get the whole title — the missing words are in a hidden span
+   inside the same heading. */
+.fv__title {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  top: 95.5%;          /* 1050 / 1100 */
+  margin: 0;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: .22em;
+  color: var(--ink);
+}
+
+/* CSS `mask-image`, not <foreignObject> and not a complex `clip-path` — the
+   first differs across WebKit builds and the second is this project's known
+   iOS trap. One white path on the same viewBox as the outline below.
+
+   ⚠ The mask is inlined as a data URI, not linked as a file. A linked mask
+   is a fetched resource, and when that fetch fails the element is not left
+   unmasked — it disappears completely. Opening the page from `file://`
+   does exactly that: the request is cross-origin from origin `null` and
+   Chromium blocks it, so the first view renders as a red outline around
+   nothing. Measured, not guessed. Inlining removes the fetch, and with it
+   the CORS case, a 404, and a wrong MIME type. */
+.fv-mark__media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 557 665'%3E%3Cpath fill='white' d='M170.6 51.7C187.2 25.6 215 8.8 245.8 6.3C276.6 3.8 306.8 15.9 327.3 39C340.8 54.1 360.3 62.3 380.5 61.5C405.8 60.4 430.4 70.1 448.2 88.1C466 106.1 475.4 130.8 474 156.1C472.9 176.9 481 197.2 496.1 211.5C519 233.1 530.1 264.3 525.9 295.5C521.7 326.7 502.7 353.9 475 368.7C457.2 378.1 444.8 395.2 441.2 415C434.4 452.8 403.9 481.8 365.8 486.7C344.4 489.5 326.4 504.1 319.3 524.4C312.2 544.8 317.1 567.4 332.1 582.9C345.6 596.8 348.6 617.7 339.7 634.9C330.7 652 311.8 661.5 292.7 658.5C279.1 656.3 265.3 656.3 251.7 658.5C234 661.3 216.3 653.3 206.7 638.2C197 623.1 197.3 603.7 207.4 588.9C217.1 574.6 219.8 556.6 214.7 540.1C209.6 523.5 197.2 510.2 181.1 503.8C153 492.8 131.7 469.2 123.5 440.1C118 420.8 103.9 405 85.3 397.3C61.8 387.6 43.5 368.2 35.2 344.2C26.8 320.1 29.2 293.6 41.7 271.4C52 253.1 53.7 231.1 46.2 211.5C35.8 184.1 38.4 153.6 53.3 128.4C68.3 103.3 93.9 86.3 122.8 82.4C142.5 79.7 160 68.5 170.6 51.7Z'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 557 665'%3E%3Cpath fill='white' d='M170.6 51.7C187.2 25.6 215 8.8 245.8 6.3C276.6 3.8 306.8 15.9 327.3 39C340.8 54.1 360.3 62.3 380.5 61.5C405.8 60.4 430.4 70.1 448.2 88.1C466 106.1 475.4 130.8 474 156.1C472.9 176.9 481 197.2 496.1 211.5C519 233.1 530.1 264.3 525.9 295.5C521.7 326.7 502.7 353.9 475 368.7C457.2 378.1 444.8 395.2 441.2 415C434.4 452.8 403.9 481.8 365.8 486.7C344.4 489.5 326.4 504.1 319.3 524.4C312.2 544.8 317.1 567.4 332.1 582.9C345.6 596.8 348.6 617.7 339.7 634.9C330.7 652 311.8 661.5 292.7 658.5C279.1 656.3 265.3 656.3 251.7 658.5C234 661.3 216.3 653.3 206.7 638.2C197 623.1 197.3 603.7 207.4 588.9C217.1 574.6 219.8 556.6 214.7 540.1C209.6 523.5 197.2 510.2 181.1 503.8C153 492.8 131.7 469.2 123.5 440.1C118 420.8 103.9 405 85.3 397.3C61.8 387.6 43.5 368.2 35.2 344.2C26.8 320.1 29.2 293.6 41.7 271.4C52 253.1 53.7 231.1 46.2 211.5C35.8 184.1 38.4 153.6 53.3 128.4C68.3 103.3 93.9 86.3 122.8 82.4C142.5 79.7 160 68.5 170.6 51.7Z'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+          mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+}
+
+.fv-mark__edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ⚠ The outline is an inline <path>, never `<use href="#…">`. A descendant
+   selector does not cross the shadow boundary `<use>` creates, so the copy
+   falls back to `fill: black` and covers the video completely. */
+.fv-mark__edge path {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 6;
+  stroke-linejoin: round;
+}
+
+/* Phones and tablets keep the same three-part composition rather than
+   unstacking into a column. The reference's first view IS the overlap — the
+   character behind, the frame across it, the film on top — and a stack of
+   three separate pictures is a different design, not a narrow version of this
+   one. Only the proportions move: the character grows toward the full width,
+   the film grows with it, and the frame thins. */
+@media (max-width: 900px) {
+  .fv__stage { height: clamp(560px, 128vw, 860px); }
+
+  .fv__word { left: 4%;  top: 17%; width: 92%; }
+  .fv-mark  { left: 27%; top: 5%;  width: 46%; }
+
+  .fv__frame {
+    top: 70%;
+    width: min(560px, 94%);
+    height: 14%;
+    border-radius: 30% / 50%;
+  }
+
+  .fv__title { top: 91%; font-size: 14px; letter-spacing: .18em; }
+}
+
+@media (max-width: 540px) {
+  .fv__stage { height: clamp(510px, 140vw, 700px); }
+
+  .fv__word { left: 3%;  top: 18%;  width: 94%; }
+  .fv-mark  { left: 25%; top: 5.5%; width: 50%; }
+
+  .fv__frame { top: 71%; height: 12.5%; }
+  .fv__title { top: 92%; font-size: 12px; letter-spacing: .14em; }
+}
+
+@media (max-width: 540px) {
+  .fv__frame { height: 108px; }
+}
+
+/* --------------------------------------------------------------------------
+   2 — MESSAGE
+
+   The brief's three paragraphs, word for word. The only decision taken here is
+   where they sit: an 800-ish measure hung off the left of the container behind
+   a red hairline, so the section reads as an opening note rather than as a
+   centred hero paragraph.
+   -------------------------------------------------------------------------- */
+.message__body {
+  max-width: 780px;
+  margin-top: 46px;
+  padding-left: 38px;
+  border-left: 1px solid var(--red-hair);
+}
+
+.message__body .deco { margin-bottom: 28px; }
+
+.message__body p {
+  font-size: 16px;
+  line-height: 2.1;
+  letter-spacing: -.02em;
+}
+
+.message__body p + p { margin-top: 1.5em; }
+
+@media (max-width: 540px) {
+  .message__body { padding-left: 22px; margin-top: 34px; }
+  .message__body p { font-size: 15px; line-height: 2; }
+}
+
+/* --------------------------------------------------------------------------
+   3 — 会期の暦
+
+   The anchor's calendar restated for eight days. Three weights of rule, which
+   is what makes it read as a chart rather than as a table: the field is ruled
+   at 26px like manuscript paper, every day boundary is a --red-hair line, and
+   the first and last days carry a full --red rule with a vertical label.
+
+   Cards run past their own column on purpose. A row of columns whose contents
+   stay inside them reads as a grid; the overlap is what makes it a timeline.
+   Vertical placement comes from six named rows, not a value per card.
+   -------------------------------------------------------------------------- */
+.cal { margin-top: 72px; }
+
+/* `auto` on one axis and `hidden` on the other — never `visible`, which the
+   engine would promote to `auto` and turn into a second scroller. The track
+   has a fixed height, so nothing can overflow vertically in the first place. */
+.cal__scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.cal__track {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 1080px;
+  height: 880px;
+  background-image: repeating-linear-gradient(to right, var(--line) 0 1px, transparent 1px 26px);
+}
+
+.cal__day {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  border-left: 1px solid var(--red-hair);
+}
+
+.cal__day--open  { border-left: 1px solid var(--red); }
+.cal__day--close { border-right: 1px solid var(--red); }
+
+.cal__daylabel {
+  position: absolute;
+  left: 12px;
+  top: 0;
+}
+
+.cal__date {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: .02em;
+  color: var(--ink-deep);
+}
+
+.cal__dow {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: .16em;
+  color: var(--ink-sub);
+}
+
+/* The two chapter marks. A vertical heading is never left on its own, so each
+   carries a 10px vertical English word beside it. */
+.cal__edge {
+  position: absolute;
+  left: 12px;
+  top: 62px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cal__edge-ja {
+  writing-mode: vertical-rl;
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: .06em;
+  color: var(--red);
+}
+
+.cal__edge-en {
+  writing-mode: vertical-rl;
+  padding-top: 3px;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .2em;
+  color: var(--ink-sub);
+}
+
+/* Six rows, one declaration each. */
+.cal__event {
+  position: absolute;
+  left: 12px;
+  top: var(--t);
+  width: 264px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.cal__event[data-row="1"] { --t: 168px; }
+.cal__event[data-row="2"] { --t: 288px; }
+.cal__event[data-row="3"] { --t: 408px; }
+.cal__event[data-row="4"] { --t: 528px; }
+.cal__event[data-row="5"] { --t: 648px; }
+.cal__event[data-row="6"] { --t: 768px; }
+
+.cal__event--wide { width: 306px; }
+.cal__event--flip { left: auto; right: 12px; }
+
+.badge {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 52px;
+  height: 60px;
+  border-radius: 8px;
+  background: var(--card-gray);
+}
+
+.badge--red { background: var(--red); }
+
+.badge__m {
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: .08em;
+  color: var(--ink-sub);
+}
+
+.badge__d {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--ink-deep);
+}
+
+.badge--red .badge__m,
+.badge--red .badge__d { color: var(--ink-rev); }
+
+.chip {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 11px 11px 13px;
+  border-radius: var(--r-card);
+  background: var(--face-chip, var(--card-gray));
+}
+
+.chip--gray { --face-chip: var(--card-gray); }
+.chip--blue { --face-chip: var(--card-blue); }
+
+.chip__body { flex: 1 1 auto; min-width: 0; }
+
+.chip__title {
+  display: block;
+  margin-top: 7px;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: -.02em;
+  color: var(--ink-deep);
+}
+
+.chip__thumb {
+  flex: none;
+  width: 56px;
+  height: 46px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--ground-alt);
+}
+
+.chip__thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.cal__note {
+  max-width: 720px;
+  margin-top: 34px;
+  color: var(--ink-sub);
+}
+
+@media (max-width: 900px) {
+  /* Eight columns of one card each stop being a chart on a phone. The same
+     markup becomes a dated list, and the red rules move to the top and bottom
+     of the run. */
+  .cal__scroll { overflow: visible; }
+
+  .cal__track {
+    display: block;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    background-image: none;
+  }
+
+  .cal__day {
+    border-left: 0;
+    border-top: 1px solid var(--red-hair);
+    padding: 22px 0 26px;
+  }
+
+  .cal__day--open  { border-top: 1px solid var(--red); }
+  .cal__day--close { border-right: 0; border-bottom: 1px solid var(--red); }
+
+  .cal__daylabel {
+    position: static;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .cal__date { font-size: 15px; }
+  .cal__dow  { margin-top: 0; }
+
+  .cal__edge { position: static; margin-top: 10px; }
+  .cal__edge-ja { writing-mode: horizontal-tb; font-size: 18px; }
+  .cal__edge-en { writing-mode: horizontal-tb; padding: 4px 0 0; }
+
+  .cal__event,
+  .cal__event--wide {
+    position: static;
+    width: auto;
+    margin-top: 16px;
+  }
+
+  .cal__event--flip { right: auto; }
+}
+
+/* --------------------------------------------------------------------------
+   4 — ABOUT THE POP-UP
+
+   The one block on the site allowed a shadow. The anchor's feature page
+   measures 15 of them and every one is under this device: a scatter of
+   white-edged prints. `.polaroid` is the only selector that reads
+   `--shadow-polaroid`, and no other rule in this file sets `box-shadow`.
+   -------------------------------------------------------------------------- */
+.about__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 470px;
+  column-gap: 88px;
+  align-items: center;
+}
+
+.about__collage { position: relative; height: 570px; }
+
+.polaroid {
+  position: absolute;
+  width: 210px;
+  padding: 10px 10px 26px;
+  background: var(--ink-rev);
+  box-shadow: var(--shadow-polaroid);
+}
+
+.polaroid img { width: 100%; height: 190px; object-fit: cover; }
+
+.polaroid[data-p="1"] { left:   0; top:  36px; width: 212px; transform: rotate(-6deg); }
+.polaroid[data-p="2"] { left: 158px; top:   0;  width: 188px; transform: rotate(4.5deg); }
+.polaroid[data-p="3"] { left: 312px; top:  74px; width: 218px; transform: rotate(-2.5deg); }
+.polaroid[data-p="4"] { left:  74px; top: 268px; width: 202px; transform: rotate(5.5deg); }
+.polaroid[data-p="5"] { left: 268px; top: 322px; width: 192px; transform: rotate(-7deg); }
+
+/* The filled 78φ control — base.css's `.arrow--solid`, which exists for this
+   one place on the site. */
+.about__jump {
+  position: absolute;
+  right: 54px;
+  bottom: 22px;
+  z-index: 5;
+}
+
+.about__copy .phead { margin-bottom: 30px; }
+.about__copy p + p  { margin-top: 1.5em; }
+
+.about__plan {
+  width: 320px;
+  max-width: 100%;
+  height: auto;
+  margin-top: 44px;
+  color: var(--ink-sub);
+}
+
+.about__plancap { margin-top: 12px; color: var(--ink-sub); }
+.about__copy .btn { margin-top: 40px; }
+
+@media (max-width: 1024px) {
+  .about__grid { grid-template-columns: minmax(0, 1fr) 400px; column-gap: 48px; }
+  .polaroid { width: 180px; }
+  .polaroid img { height: 160px; }
+  .polaroid[data-p="1"] { width: 182px; }
+  .polaroid[data-p="2"] { left: 138px; width: 160px; }
+  .polaroid[data-p="3"] { left: 264px; width: 186px; }
+  .polaroid[data-p="4"] { left:  64px; top: 244px; width: 172px; }
+  .polaroid[data-p="5"] { left: 226px; top: 288px; width: 164px; }
+  .about__collage { height: 500px; }
+}
+
+@media (max-width: 900px) {
+  .about__grid { grid-template-columns: 1fr; row-gap: 56px; }
+
+  .about__collage {
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 22px 26px;
+    padding-block: 14px 22px;
+  }
+
+  .polaroid,
+  .polaroid[data-p="1"],
+  .polaroid[data-p="2"],
+  .polaroid[data-p="3"],
+  .polaroid[data-p="4"],
+  .polaroid[data-p="5"] {
+    position: static;
+    width: min(210px, 40%);
+    left: auto;
+    top: auto;
+  }
+
+  .polaroid img { height: 150px; }
+
+  .about__jump {
+    position: static;
+    margin: 6px auto 0;
+  }
+}
+
+@media (max-width: 540px) {
+  .polaroid img { height: 118px; }
+}
+
+/* --------------------------------------------------------------------------
+   5 / 7 — ITEM LINE UP ① and ②
+
+   The three-layer stack, type D, whose geometry lives in motion.css. Only two
+   things are set here: the width of the stage, and the two layer widths — as
+   percentages, so one pair of numbers holds at every viewport instead of the
+   54 declarations across five breakpoints the previous build needed.
+
+   The three stages in a section are deliberately different sizes and sit on
+   different sides of the column. Three identical plates down the middle is the
+   most legible way for a page to look assembled rather than composed.
+   -------------------------------------------------------------------------- */
+.items .stack {
+  --stack-w: 850px;
+  --lw-back: 40%;
+  --lw-mid:  62%;
+  width: min(var(--stack-w), 94%);
+}
+
+.stack--w1 { --stack-w: 900px; }
+.stack--w2 { --stack-w: 790px; }
+.stack--w3 { --stack-w: 850px; }
+
+.stack--start  { margin-inline: 0 auto; }
+.stack--end    { margin-inline: auto 0; }
+.stack--center { margin-inline: auto; }
+
+.items .stack + .stack { margin-top: 118px; }
+.items .vhead { margin-bottom: 84px; }
+
+/* --- product copy: six named anchors, declared once ----------------------- */
+.copy {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  max-width: 30%;
+  text-align: var(--align);
+}
+
+.copy[data-pos="top-left"]     { --x:  4%; --y:  6%; --align: left;  }
+.copy[data-pos="top-right"]    { --x: 62%; --y:  6%; --align: right; }
+.copy[data-pos="mid-left"]     { --x:  4%; --y: 41%; --align: left;  }
+.copy[data-pos="mid-right"]    { --x: 62%; --y: 41%; --align: right; }
+.copy[data-pos="bottom-left"]  { --x:  4%; --y: 73%; --align: left;  }
+.copy[data-pos="bottom-right"] { --x: 62%; --y: 73%; --align: right; }
+
+.copy__no {
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .12em;
+  color: var(--red);
+}
+
+.copy__name {
+  margin-top: 12px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: .01em;
+  color: var(--ink-deep);
+}
+
+.copy__price {
+  margin-top: 10px;
+  font-size: var(--fs-small);
+  line-height: 1;
+  letter-spacing: .04em;
+  color: var(--ink);
+}
+
+/* group03 composes a darker plain field where [04] sits (設計図 §8-3), so that
+   one item reverses out. Readability comes from the photograph, never from a
+   halo: `text-shadow` is banned across the whole site. */
+.copy--rev .copy__no,
+.copy--rev .copy__name,
+.copy--rev .copy__price { color: var(--ink-rev); }
+
+@media (max-width: 840px) {
+  .copy { max-width: 42%; }
+  .copy[data-pos$="-right"] { --x: 54%; }
+  .copy__name { font-size: 16px; }
+}
+
+@media (max-width: 540px) {
+  /* Absolute placement is abandoned rather than tuned. Below this width the
+     stack is a single plate (motion.css hides layers a and b), so the copy
+     reads under it in flow and an overflow is not possible.
+
+     Written at (0,2,0) rather than (0,1,0): a media query adds no specificity
+     of its own, so matching motion.css's `.stack__copy` exactly would leave
+     this depending on file order alone. */
+  .items .stack__copy { position: static; }
+
+  .copy {
+    position: static;
+    max-width: none;
+    margin-top: 22px;
+    text-align: left;
+  }
+
+  .copy + .copy { margin-top: 26px; }
+
+  /* The reversed item stops being reversed once the copy leaves the
+     photograph. Below this width `.copy` goes to flow and lands on the cream
+     ground, where white text measures 1.16 : 1 — one of the ten products had
+     no readable name or price on any phone. Reversing out is a property of
+     sitting on a dark plain field, so it ends when that ends. */
+  .copy--rev .copy__no    { color: var(--red); }
+  .copy--rev .copy__name  { color: var(--ink-deep); }
+  .copy--rev .copy__price { color: var(--ink); }
+  .items .stack + .stack { margin-top: 72px; }
+}
+
+/* --- the round-thumb notes that close §5 ---------------------------------
+   `minmax(0, 1fr)` and `min-width: 0`, not a bare `1fr`. A bare `1fr` is
+   `minmax(auto, 1fr)`, and a grid item's automatic minimum is its min-content
+   width — which the 290px thumbnail inside sets. Four tracks then refuse to go
+   below 290px each, the row needs 1250px, and `body { overflow-x: clip }`
+   swallows the difference silently: no scrollbar appears, the fourth card is
+   simply cut off. Measured missing between 901 and 1409px — the whole
+   1366×768 and 1280×800 laptop band. This grid is not `.grid`, so the same
+   guard in base.css does not reach it. */
+.notes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 30px;
+  row-gap: var(--space-block);
+  margin-top: 124px;
+}
+
+.notes > * { min-width: 0; }
+
+.notes__item .thumb { margin-bottom: 22px; }
+.notes .label { margin-bottom: 10px; }
+.notes__title { margin-bottom: 10px; color: var(--ink-deep); }
+.notes__item .body-sm { color: var(--ink-sub); }
+
+@media (max-width: 900px) {
+  .notes { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; margin-top: 84px; }
+}
+
+@media (max-width: 540px) {
+  .notes { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   6 — THE LOOKBOOK SPREAD
+
+   The anchor's broadsheet borrowed as a structure and nothing else: a large
+   spread tilted a degree and a half with a crease down its middle, and a
+   140px red marquee running behind it. What is on the sheet is this brand's
+   own lookbook.
+
+   The tilt rides on --rot so it composes with the reveal rather than fighting
+   it for the transform property (motion.css folds placement and motion into
+   one expression for exactly this reason).
+   -------------------------------------------------------------------------- */
+.spread { --fs-marquee: clamp(52px, 9.72vw, 140px); }
+
+.spread .phead { margin-bottom: 54px; }
+
+.spread__stage {
+  position: relative;
+  overflow-x: hidden;
+  overflow-x: clip;
+  padding-block: 26px 0;
+}
+
+.spread__marquee {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 32%;
+  z-index: 0;
+}
+
+.spread__figure {
+  position: relative;
+  z-index: 1;
+  width: min(1180px, calc(100% - var(--space-gutter) * 2));
+  margin-inline: auto;
+  --rot: -1.4deg;
+}
+
+.spread__figure > img { width: 100%; height: auto; }
+
+/* The crease: one dark hairline with a lighter one beside it, which is what a
+   fold in paper actually looks like. Both take tokens — `opacity` is a
+   property, not a colour, so the palette stays intact. */
+.spread__fold {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ink);
+  opacity: .15;
+}
+
+.spread__fold--b {
+  transform: translateX(2px);
+  background: var(--ink-rev);
+  opacity: .34;
+}
+
+.spread__cap {
+  max-width: 620px;
+  margin: 46px auto 0;
+  text-align: center;
+  color: var(--ink-sub);
+}
+
+.spread__foot {
+  display: flex;
+  justify-content: center;
+  padding-top: 50px;
+}
+
+@media (max-width: 900px) {
+  .spread .phead { margin-bottom: 34px; }
+  .spread__marquee { top: 28%; }
+  .spread__cap { margin-top: 32px; }
+  .spread__foot { padding-top: 36px; }
+}
+
+/* --------------------------------------------------------------------------
+   7 — the reading cards
+
+   base.css's editorial card, with the SQUARE thumbnail. The round one belongs
+   to §5 above, so the two blocks of reading matter on this page are never the
+   same card recoloured. Each face colour is passed in per card and none is
+   used twice in a row.
+   -------------------------------------------------------------------------- */
+.reads__rule { margin-top: 128px; }
+.reads { margin-top: 62px; }
+
+/* Face colours, carried on `data-face` the way base.css carries state — so no
+   colour ends up inline in the markup and the palette stays replaceable from
+   one place. No face follows itself. */
+/* Ink, not red, for the label on a coloured face. Red on the seven card
+   faces measures 1.96 : 1 (teal) to 4.31 : 1 (cream) at 10px — none of them
+   reach AA, and no amount of thinning the face fixes it. Red stays where it
+   still carries: the item numbers, the section eyebrows, the hairlines and
+   the marquee, all of which sit on cream or on white. */
+.reads .label { color: var(--ink); }
+
+.reads [data-face="cream"]   { --face: var(--card-cream); }
+.reads [data-face="gray"]    { --face: var(--card-gray); }
+.reads [data-face="salmon"]  { --face: var(--card-salmon); }
+.reads [data-face="mustard"] { --face: var(--card-mustard); }
+.reads [data-face="teal"]    { --face: var(--card-teal); }
+.reads [data-face="sage"]    { --face: var(--card-sage); }
+.reads [data-face="blue"]    { --face: var(--card-blue); }
+
+.reads .thumb { margin-bottom: 20px; }
+.reads .label { margin-bottom: 10px; }
+.reads .card__title { margin: 0 0 12px; color: var(--ink-deep); }
+.reads .body-sm { color: var(--ink); }
+
+.reads__more {
+  margin-top: 18px;
+  text-align: right;
+  font-size: var(--fs-small);
+  line-height: 1;
+}
+
+.reads__more span {
+  display: inline-block;
+  padding-bottom: 4px;
+  border-bottom: 1px solid currentColor;
+}
+
+.reads__foot {
+  display: flex;
+  justify-content: center;
+  padding-top: 92px;
+}
+
+@media (max-width: 900px) {
+  .reads__rule { margin-top: 88px; }
+  .reads__foot { padding-top: 64px; }
+}
+
+/* --------------------------------------------------------------------------
+   8 — INFORMATION
+
+   The brief's two sentences, word for word and with the break between them
+   kept. Everything around them is this page's: the red hairline, the pills,
+   the definition list and one wide plate of the venue.
+   -------------------------------------------------------------------------- */
+.info__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.info__head .deco { margin-top: 5px; }
+
+.info__rule { margin: 46px 0 62px; }
+
+.info__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 520px;
+  column-gap: 80px;
+  align-items: start;
+}
+
+.info__lede {
+  font-size: 17px;
+  line-height: 2;
+  letter-spacing: -.02em;
+  color: var(--ink-deep);
+}
+
+.info__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 34px;
+}
+
+.info__list {
+  display: grid;
+  grid-template-columns: 116px minmax(0, 1fr);
+  row-gap: 14px;
+  column-gap: 20px;
+  margin-top: 42px;
+  padding-top: 34px;
+  border-top: 1px solid var(--red-hair);
+  font-size: var(--fs-small);
+  line-height: 1.9;
+  letter-spacing: .04em;
+}
+
+.info__list dt { color: var(--ink-sub); }
+.info__list dd { margin: 0; }
+
+.info__copy .btn { margin-top: 46px; }
+
+.info__figure > img { width: 100%; height: 430px; object-fit: cover; }
+.info__figure figcaption { margin-top: 14px; color: var(--ink-sub); }
+
+@media (max-width: 1024px) {
+  .info__grid { grid-template-columns: minmax(0, 1fr) 400px; column-gap: 48px; }
+  .info__figure > img { height: 340px; }
+}
+
+@media (max-width: 900px) {
+  .info__grid { grid-template-columns: 1fr; row-gap: 48px; }
+  .info__rule { margin: 34px 0 44px; }
+  .info__lede { font-size: 16px; }
+  .info__figure > img { height: 300px; }
+}
+
+@media (max-width: 540px) {
+  .info__list { grid-template-columns: 1fr; row-gap: 4px; }
+  .info__list dd { margin-bottom: 12px; }
+  .info__figure > img { height: 230px; }
+}

@@ -1,0 +1,691 @@
+/* ==========================================================================
+   page-women.css — the WOMEN category page, and nothing else.
+
+   Loaded third, after base.css and motion.css. Both of those are frozen: this
+   file sets variables on their components and adds what is specific to this
+   page. It never restates a token and never rewrites a rule from either.
+
+   Where this page sits in the depth design (設計図 §2):
+
+     index   the reference's own stillness. No stacks at all.
+     WOMEN   the three-layer stack becomes the subject — this is the first
+             page on the site where you meet one.
+     MEN     the same idea in a different type.
+     POP-UP  the feature page, and where the red arrives.
+
+   Three constraints govern everything below:
+
+   1. NO --red and NO --ink-deep outside §6, the hand-off band. The measured
+      home page has no red pixel in its interface and --ink-deep is the
+      feature page's ink; letting either leak into the category pages would
+      spend the palette's loudest note before the page that needs it. Both
+      tokens appear exactly once each in this file, inside the `.handoff`
+      block, and nowhere else. The marquee's red comes from motion.css.
+   2. No `aspect-ratio` and no absolutely positioned children inside a grid
+      item. Stretched track × aspect-ratio × absolute child collapses a box to
+      0×0 in WebKit, and P3 is where this site introduces grids for the first
+      time — an untested risk here, not a known-safe one. Every picture box
+      gets an explicit height per breakpoint, as base.css does for its cards.
+      Decoration is hung off `.section`, which is already `position:relative`.
+   3. No shadows. `box-shadow` and `text-shadow` alike; women has no
+      exception. The copy laid over the hero is readable because the plate it
+      sits on is a seamless studio backdrop with an empty left third — the
+      whitespace is in the photograph, not in a halo added here.
+
+   Stack placement is expressed only as percentages of each layer's own box.
+   The build before last spent 54 declarations across 5 breakpoints on the
+   same job and still broke whenever an image was swapped.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Page rhythm
+
+   The hero opens on type rather than on a full-bleed plate, so it needs a
+   little air under the fixed header but nowhere near a section gap.
+   -------------------------------------------------------------------------- */
+.site-main > .section:first-child { margin-top: 24px; }
+
+/* The anchor's bands measure 970–1722px and its gaps are not all equal. Four
+   sections arriving on an identical margin is the most legible tell of a
+   generated page, so two of them move: the category head is tight (base.css's
+   own modifier, set in the markup), the styling block takes extra air after
+   the dense product grid, and the reading block closes up into the hand-off
+   it introduces. */
+.styling { margin-top: calc(var(--space-section) * 1.25); }
+.reading { margin-top: calc(var(--space-section) *  .85); }
+
+/* Two hairline weights, as the anchor uses them: one that opens a block and
+   one that sits between two. base.css owns the rules themselves. */
+.rule--head { margin-bottom: 46px; }
+
+/* --------------------------------------------------------------------------
+   Small vertical labels in the outer margin
+
+   The anchor's densest device and the one that stops a wide page reading as
+   empty: 30×70 and 32×140px runs of vertical type set OUTSIDE the content
+   column, in the page gutter. Anchored to the container edge rather than to
+   the viewport so they hold their distance from the copy at every width, and
+   dropped below 1024px where the gutter is 40px and there is no room.
+
+   Sections whose content fills the 1280 container need the label pushed a
+   further 46px out; the hero sits in `.narrow` (1120) and already has room.
+   -------------------------------------------------------------------------- */
+.edge-label {
+  position: absolute;
+  top: 40px;
+  z-index: 2;
+  writing-mode: vertical-rl;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .22em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.edge-label--left  { left:  max(14px, calc(50% - var(--w-container) / 2 - var(--edge-out, 0px))); }
+.edge-label--right { right: max(14px, calc(50% - var(--w-container) / 2 - var(--edge-out, 0px))); }
+
+.edge-label--out { --edge-out: 46px; }
+.edge-label--low { top: auto; bottom: 120px; }
+.edge-label--mid { top: 38%; }
+
+@media (max-width: 1024px) { .edge-label { display: none; } }
+
+/* --------------------------------------------------------------------------
+   Shared small parts
+
+   `.more` is the anchor's 12px underlined link, set 4px clear of the
+   baseline. base.css already owns it for the section head (`.section__more`);
+   this is the same device used inside a card or under a paragraph, where the
+   flex behaviour of the head version would be meaningless.
+   -------------------------------------------------------------------------- */
+.more {
+  display: inline-block;
+  font-size: var(--fs-small);
+  line-height: 1;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 4px;
+}
+
+/* One or two lines under a head. Deliberately not on every section — four
+   carry one, the rest open straight onto their content. */
+.standfirst { max-width: 44em; }
+
+/* Line drawings. Stroked, never filled, and coloured by the element so a
+   single rule serves all of them. The vocabulary changes per section on
+   purpose: a stack diagram, a weave, a hanger, a fan, a book, an awning. Six
+   drawings of the same kind would be its own tell. */
+.linework {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* --------------------------------------------------------------------------
+   1 — THREE-LAYER HERO  (motion.css type A, vertical offset)
+
+   The page's subject. Layers a and b are the same desaturated plate at two
+   different widths; c is the graded colour version, narrower again and in
+   front, so the three read as three rather than as one image with a halo.
+
+   Widths are the only thing this file sets on the type. The offsets, the
+   back-to-front cascade and the phone collapse all come from motion.css.
+   -------------------------------------------------------------------------- */
+.hero__head { margin-bottom: 12px; }
+
+.hero__title {
+  display: flex;
+  align-items: flex-end;
+  gap: 44px;
+  margin-block: 20px 30px;
+}
+
+.hero__diagram {
+  flex: none;
+  width: 48px;
+  height: 60px;
+  margin-bottom: 12px;
+  color: var(--ink-sub);
+}
+
+/* The stage carries the vertical overhang: layer a hangs above the stack and
+   layer c below it, both by --step of their own height. Padding here rather
+   than on `.stack` itself, because an absolutely positioned layer resolves
+   `top:0` against the padding box and would ignore it. */
+.hero__stage { padding-block: 88px 104px; }
+
+.hero-stack {
+  --lw-back: 54%;
+  --lw-mid:  78%;
+  --step:     9%;
+}
+
+/* Type A gives layers a and c the same width. Three plates at two widths read
+   as a doubled image, so the front layer takes a third width of its own —
+   still a variable on the layer, not a new rule.
+
+   ⚠ This selector is (0,3,0). motion.css collapses the stack to a single
+   plate at 540px with `.stack__layer--c { --lw: 100% }`, which is (0,1,0) —
+   media queries add no specificity, so without the companion rule at the
+   bottom of this block the phone would render the hero at 66% width. The
+   override is restated there, not weakened here. */
+.stack.hero-stack .stack__layer--c { --lw: 66%; }
+
+/* Copy laid over the stack. Named anchors, never a magic number: the previous
+   build managed 10 blocks × 6 breakpoints of hand-written coordinates and two
+   of them sat off-screen from launch. Six anchors are declared once and the
+   markup names one. */
+.copy {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  max-width: 32%;
+  text-align: var(--align);
+}
+
+.copy[data-pos="top-left"]     { --x:  6%; --y:  8%; --align: left; }
+.copy[data-pos="top-right"]    { --x: 62%; --y:  8%; --align: right; }
+.copy[data-pos="mid-left"]     { --x:  6%; --y: 42%; --align: left; }
+.copy[data-pos="mid-right"]    { --x: 62%; --y: 42%; --align: right; }
+.copy[data-pos="bottom-left"]  { --x:  6%; --y: 74%; --align: left; }
+.copy[data-pos="bottom-right"] { --x: 62%; --y: 74%; --align: right; }
+
+.copy .label     { margin-bottom: 14px; }
+.copy .h-card + .h-card { margin-top: 2px; }
+.copy__note      { margin-top: 14px; color: var(--ink-sub); }
+
+.hero__foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 32px;
+  padding-top: 34px;
+  border-top: 1px solid var(--line);
+}
+
+.hero__note { color: var(--ink-sub); }
+
+/* Phones drop the overlay entirely (base.css's `.only-pc` / `.only-sp`) and
+   the same information returns in the foot, in flow. motion.css already
+   collapses the stack itself to a single plate at this width. */
+.hero__pieces { padding-bottom: 22px; }
+.hero__pieces .label { margin-bottom: 10px; }
+
+@media (max-width: 900px) {
+  .hero__title { gap: 28px; }
+  .hero__stage { padding-block: 56px 68px; }
+  .hero-stack  { --step: 7%; }
+  .copy        { max-width: 44%; }
+  .copy[data-pos$="-right"] { --x: 54%; }
+}
+
+@media (max-width: 540px) {
+  .hero__diagram { display: none; }
+  .hero__stage   { padding-block: 0; }
+
+  /* Hands the front layer back to motion.css's phone collapse — see the note
+     on the (0,3,0) width rule above. */
+  .stack.hero-stack .stack__layer--c { --lw: 100%; }
+
+  .hero__foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding-top: 26px;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2 — CATEGORY HEAD  (vertical WOMEN, 48px)
+
+   The anchor never sets a vertical heading on its own: every one has a triple
+   stamp, a 12px vertical standfirst or a vertical year beside it, and usually
+   two of the three. This block carries all three plus a weave drawing, which
+   is the whole reason it reads as a designed hinge rather than a label.
+
+   The stamp is the anchor's red triple seal in --ink-sub — red does not exist
+   on this page outside §6, and the shape survives the substitution intact.
+   -------------------------------------------------------------------------- */
+.vhead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 32px;
+  padding-block: 4px 76px;
+}
+
+.vhead__stamp {
+  flex: none;
+  width: 16px;
+  height: 64px;
+  margin-top: 10px;
+  color: var(--ink-sub);
+}
+
+.vhead .h2-vertical { flex: none; }
+
+.vhead__lead {
+  flex: none;
+  height: 230px;
+  writing-mode: vertical-rl;
+  font-size: var(--fs-small);
+  line-height: 1.67;
+  letter-spacing: .04em;
+  margin-top: 6px;
+}
+
+.vhead__year {
+  flex: none;
+  writing-mode: vertical-rl;
+  font-size: var(--fs-nav);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: .2em;
+  color: var(--ink-sub);
+  margin-top: 10px;
+}
+
+.vhead__weave {
+  flex: none;
+  width: 76px;
+  height: 44px;
+  margin-top: 14px;
+  color: var(--ink-sub);
+}
+
+.axis-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 30px;
+  row-gap: 40px;
+}
+
+.axis {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+
+.axis__no {
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: .12em;
+  color: var(--ink-sub);
+}
+
+.axis__h {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: -.03em;
+  margin-block: 14px 10px;
+}
+
+@media (max-width: 900px) {
+  .vhead { gap: 22px; padding-block: 4px 52px; }
+  .vhead__lead { height: 200px; }
+  .vhead__weave { display: none; }
+  .axis-list { grid-template-columns: 1fr; row-gap: 30px; }
+}
+
+@media (max-width: 540px) {
+  .vhead { justify-content: flex-start; gap: 16px; }
+  .vhead__year { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   3 — AUTUMN ITEMS  (four-up grid, ten products)
+
+   The grid is base.css's. Two things are added.
+
+   The first is the caption. base.css hides `.card--product .card__body`
+   because the anchor's own product cards carry no text at all — but the ten
+   names and prices on this site are fixed copy that has to be legible, so the
+   body comes back on an explicit modifier rather than by loosening the
+   component. (page-index.css re-enables it the same way for its Pick up rail;
+   three pages now do this, so `.card--priced` is a candidate for promotion
+   into base.css when the constitution is next opened.)
+
+   The second is a pair of text tiles. Ten cards in a four-column grid leaves
+   a two-thirds-empty last row; a note tile in each of the two free cells
+   squares the block off and adds two more headings and two more paragraphs to
+   a section that would otherwise be captions only.
+   -------------------------------------------------------------------------- */
+.items__intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 56px;
+  padding-bottom: 30px;
+}
+
+.items__hanger {
+  flex: none;
+  width: 96px;
+  height: 38px;
+  margin-top: 6px;
+  color: var(--ink-sub);
+}
+
+/* A ruled scale rather than a plain hairline: the anchor's rules are never
+   all one weight, and a measured edge suits a page of garment dimensions. */
+.items__scale {
+  width: 300px;
+  max-width: 100%;
+  height: 9px;
+  margin-bottom: 48px;
+  color: var(--ink-sub);
+}
+
+.card--priced .card__body {
+  display: block;            /* overrides base.css's caption-less product card */
+  padding-top: 20px;
+}
+
+.card__no {
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: .12em;
+  color: var(--ink-sub);
+  margin-bottom: 12px;
+}
+
+.card__price {
+  margin-top: 8px;
+  font-size: var(--fs-small);
+  letter-spacing: .04em;
+  color: var(--ink-sub);
+}
+
+/* The text tiles. A hairline at the top and nothing else — an outlined box
+   would be the only framed thing on the page and would read as a widget. */
+.card--note {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  border-top: 1px solid var(--ink);
+  padding-top: 22px;
+}
+
+.card--note .label      { margin-bottom: 16px; }
+.card--note .card__title{ margin-bottom: 12px; }
+.card--note .body-sm    { color: var(--ink-sub); }
+.card--note .more       { align-self: flex-start; }
+
+.grid-foot {
+  display: flex;
+  justify-content: center;
+  padding-top: 84px;
+}
+
+@media (max-width: 900px) {
+  .items__intro { flex-direction: column; gap: 26px; }
+  .items__hanger { order: -1; margin-top: 0; }
+  .items__scale { margin-bottom: 34px; }
+  .grid-foot { padding-top: 56px; }
+}
+
+/* --------------------------------------------------------------------------
+   4 — STYLING  (motion.css type C, rotated fan — two of them)
+
+   Small on purpose. The hero is the page's one large stack; repeating it at
+   the same scale halfway down would make the device look like a template
+   instead of a subject. These two are 400px wide, sit on opposite sides of
+   the column, and fan rather than lift.
+
+   Layer a is rotated about its own centre, so its leading corner swings ~12px
+   past the left edge of the stage and `overflow-x: clip` would shave it. A
+   4% nudge on the layer's own --tx puts the whole rotated box back inside the
+   clip rectangle — a variable on the layer, not a change to the clip.
+   -------------------------------------------------------------------------- */
+.style-row {
+  display: flex;
+  align-items: center;
+  gap: 80px;
+}
+
+.style-row__stage {
+  flex: 0 0 400px;
+  padding-block: 84px 12px;
+}
+
+.style-row__copy { flex: 1; min-width: 0; }
+
+.style-stack .stack__layer--a { --tx: 4%; }
+
+/* The second fan hangs from a different height than the first. Two identical
+   stages at two identical offsets would read as one module used twice. */
+.style-row--flip .style-row__stage { padding-block: 100px 0; }
+
+.style-row__h {
+  font-size: clamp(22px, 2.1vw, 30px);
+  font-weight: 300;
+  line-height: 1.45;
+  letter-spacing: -.04em;
+  margin-block: 18px 20px;
+}
+
+.style-row__copy p + p { margin-top: 1.3em; }
+
+.pieces {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  row-gap: 8px;
+  column-gap: 16px;
+  margin-block: 28px 28px;
+  font-size: var(--fs-small);
+  line-height: 1.67;
+  letter-spacing: .04em;
+}
+
+.pieces dt { color: var(--ink-sub); }
+.pieces dd { margin: 0; }
+
+.style-divider {
+  position: relative;
+  padding-block: 76px;
+}
+
+.style-divider__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding-inline: 18px;
+  background: var(--ground);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .22em;
+  color: var(--ink-sub);
+}
+
+.styling__foot {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding-top: 76px;
+}
+
+.styling__fan {
+  flex: none;
+  width: 108px;
+  height: 74px;
+  color: var(--ink-sub);
+}
+
+.styling__foot p { color: var(--ink-sub); }
+
+@media (max-width: 900px) {
+  .style-row { flex-direction: column; align-items: stretch; gap: 36px; }
+  .style-row__stage { flex: none; width: min(400px, 100%); }
+
+  /* The flip rule above is (0,2,0) and would otherwise outrank a plain
+     `.style-row__stage` here, carrying its desktop offset all the way down to
+     the phone. Both selectors are restated so the two rows land together. */
+  .style-row__stage,
+  .style-row--flip .style-row__stage { padding-block: 76px 8px; }
+
+  .style-divider { padding-block: 52px; }
+  .styling__foot { padding-top: 52px; }
+}
+
+@media (max-width: 540px) {
+  .style-row__stage,
+  .style-row--flip .style-row__stage { padding-block: 0; }
+
+  .styling__foot { flex-direction: column; align-items: flex-start; gap: 18px; }
+}
+
+/* --------------------------------------------------------------------------
+   5 — READING  (four editorial cards, round masks)
+
+   The face colour changes per card. That is the anchor's own move — it gives
+   every reading block on the feature page a different ground — and it is most
+   of what stops four identical boxes reading as a template.
+
+   Two columns rather than four. The round mask is a fixed 290px on the anchor
+   and fills the card's inner width exactly (334 − 22 × 2); at four-up in a
+   fluid 1280 container the inner width falls to ~150px at the low end of the
+   band, which would squash the circle into an ellipse at every width except
+   the widest. `aspect-ratio` would solve it and is exactly the property this
+   project keeps out of card interiors, so the column count gives way instead.
+   The section reads differently from the four-up product grid above it, which
+   it should.
+   -------------------------------------------------------------------------- */
+.reading__intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 44px;
+  padding-bottom: 50px;
+}
+
+.reading__book {
+  flex: none;
+  width: 96px;
+  height: 58px;
+  color: var(--ink-sub);
+}
+
+.read-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 32px;
+  row-gap: var(--space-block);
+}
+
+.read-grid .card--editorial {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fixed height, fixed width, never shrunk by the column — the circle stays a
+   circle at every width instead of drifting into an ellipse. */
+.read-grid .thumb { flex: none; }
+
+.card__cat   { margin-top: 20px; color: var(--ink); }
+.card__more  { margin-top: auto; margin-left: auto; padding-top: 20px; }
+
+.card--face-blue    { --face: var(--card-blue); }
+.card--face-mustard { --face: var(--card-mustard); }
+.card--face-teal    { --face: var(--card-teal); }
+.card--face-sage    { --face: var(--card-sage); }
+
+@media (max-width: 900px) {
+  .reading__intro { flex-direction: column; gap: 26px; padding-bottom: 34px; }
+  .read-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 540px) {
+  .read-grid .thumb { width: 224px; height: 224px; }
+}
+
+/* --------------------------------------------------------------------------
+   6 — POP-UP HAND-OFF
+
+   ★ The only section on this page allowed --red and --ink-deep. Both tokens
+   appear below and nowhere else in this file. The band is the feature page's
+   ground, so the hand-off is legible as a change of paper before a word is
+   read, and the marquee — whose colour comes from motion.css — is the first
+   red on the page.
+
+   Smaller than the 140px measured on the feature page itself: matching that
+   size here would leave the pop-up page nothing louder to arrive with.
+   -------------------------------------------------------------------------- */
+.handoff { --fs-marquee: clamp(44px, 5.4vw, 92px); }
+
+.handoff__body { padding-block: 96px 116px; }
+
+.handoff .marquee {
+  margin-bottom: 84px;
+  padding-block: 6px;
+}
+
+.handoff__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  column-gap: 100px;
+  align-items: start;
+}
+
+.handoff__h {
+  font-size: clamp(30px, 3.4vw, 48px);
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -.05em;
+  color: var(--ink-deep);
+  margin-top: 18px;
+}
+
+.handoff__hair { margin-block: 28px 30px; }
+
+.handoff__lede p + p { margin-top: 1.4em; }
+
+/* 4px, so the drawing's top edge lines up optically with the cap height of
+   the label opposite it rather than with its box. */
+.handoff__side { padding-top: 4px; }
+
+.handoff__awning {
+  width: 124px;
+  height: 58px;
+  margin-bottom: 34px;
+  color: var(--ink-deep);
+}
+
+.handoff__meta {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  row-gap: 12px;
+  column-gap: 20px;
+  margin-bottom: 36px;
+  font-size: var(--fs-small);
+  line-height: 1.67;
+  letter-spacing: .04em;
+}
+
+/* The anchor sets the date labels on its calendar in red and nothing else in
+   the block. Same job here. */
+.handoff__meta dt { color: var(--red); }
+.handoff__meta dd { margin: 0; }
+
+.handoff__note { margin-top: 20px; color: var(--ink-sub); }
+
+@media (max-width: 1024px) {
+  .handoff__inner { grid-template-columns: minmax(0, 1fr) 300px; column-gap: 56px; }
+}
+
+@media (max-width: 900px) {
+  .handoff__body { padding-block: 64px 76px; }
+  .handoff .marquee { margin-bottom: 52px; }
+
+  .handoff__inner {
+    grid-template-columns: 1fr;
+    row-gap: 40px;
+  }
+
+  .handoff__awning { margin-bottom: 24px; }
+}

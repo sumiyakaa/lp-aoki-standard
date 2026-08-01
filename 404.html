@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ページが見つかりません｜Aoki Standard Co.</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#F4F4F2">
+<link rel="icon" href="/lp-aoki-standard/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/lp-aoki-standard/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500&display=swap">
+<!--
+  Standalone on purpose: a 404 has to render even when the stylesheet is the
+  thing that went missing, so it carries its own tokens rather than loading
+  css/base.css. The values are copies of the constitution's — ground #F4F4F2,
+  ink #1C2940, rule #E5E7E9, no shadows, sentence case, Zen Kaku Gothic New
+  only. If the palette changes, this file changes with it.
+-->
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: #F4F4F2;
+    color: #1C2940;
+    font-family: "Zen Kaku Gothic New", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.86;
+    letter-spacing: -.03em;
+    line-break: strict;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 560px; width: 100%; }
+  .code {
+    margin: 0;
+    font-size: clamp(72px, 14vw, 140px);
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -.05em;
+  }
+  .rule { width: 100%; height: 1px; margin: 40px 0; background: #E5E7E9; }
+  h1 { margin: 0 0 20px; font-size: 20px; font-weight: 500; line-height: 1.5; letter-spacing: -.02em; }
+  p { margin: 0; }
+  .sub { color: #838994; }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: min(200px, 100%);
+    height: 46px;
+    margin-top: 44px;
+    border-radius: 6px;
+    background: #1C2940;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: .28px;
+    text-decoration: none;
+    transition: color .3s ease, background-color .3s ease;
+  }
+  .back:hover { background: #193854; }
+  .back:focus-visible { outline: 2px solid #1C2940; outline-offset: 3px; }
+  .brand { margin-top: 64px; font-size: 12px; letter-spacing: .06em; color: #838994; }
+</style>
+</head>
+<body>
+  <main>
+    <p class="code">404</p>
+    <div class="rule"></div>
+    <h1>お探しのページは見つかりませんでした</h1>
+    <p class="sub">
+      移動または削除された可能性があります。<br>
+      お手数ですが、トップページからお進みください。
+    </p>
+    <a class="back" href="/lp-aoki-standard/">トップへ戻る</a>
+    <p class="brand">Aoki Standard Co.</p>
+  </main>
+</body>
+</html>

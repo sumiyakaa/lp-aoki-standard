@@ -1,0 +1,664 @@
+/* ==========================================================================
+   page-index.css — the brand home page, and nothing else.
+
+   Loaded third, after base.css and motion.css. Everything structural already
+   exists in base.css: container widths, section rhythm, the section head, the
+   cards, the grids, the rail, the arrows, the header and the footer. This file
+   adds only what is specific to the home page and never restates a token.
+
+   Two rules govern what is allowed in here, both from the P3 brief:
+
+   1. NO --red and NO --ink-deep. Seven full-page tiles of the anchor's home
+      page contain no red pixel outside a photograph, and --ink-deep is the
+      feature page's ink. Neither token is written anywhere below — the single
+      red note on this page is the marquee in #feature, and its colour comes
+      from motion.css's own `.marquee__line` rule, not from here.
+   2. No `aspect-ratio`. Every picture box gets an explicit height per
+      breakpoint, exactly as base.css does for its cards. This page is the
+      first on the site to use CSS grid, so the WebKit collapse
+      (stretched track × aspect-ratio × absolute child) is an untested risk
+      here rather than a known-safe one. Removing one leg of the trio
+      everywhere costs a few media queries and removes the class of bug.
+
+   The home page is the quiet end of the depth design (設計図 §2). It carries
+   no three-layer stack, and its reveals are opacity-only apart from two
+   deliberate `rise` accents in #feature — the section that hands off to the
+   pop-up page and is allowed to raise its voice.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Page rhythm
+
+   Measured: the anchor's key visual starts 150px from the top of the viewport,
+   and the fixed header is 130px. `.site-main` already clears the header, so
+   the opening section needs 20px and not a full section gap.
+   -------------------------------------------------------------------------- */
+.site-main > .section:first-child { margin-top: 20px; }
+
+/* Sections that carry a coloured band need padding, not margin, or the ground
+   colour bleeds into the band. The margin above still comes from `.section`. */
+.band__body { padding-block: 104px 116px; }
+
+@media (max-width: 900px) { .band__body { padding-block: 72px 84px; } }
+
+/* Band edges. The anchor draws consecutive bands differently on purpose: the
+   COORDINATES band arrives and leaves on an arc (measured: the top edge rises
+   90px at the centre), the CONTENTS band on a flat horizontal. Two bands of
+   the same colour then never read as the same device used twice.
+
+   Drawn as filled SVG rather than border-radius or clip-path: a 1440-wide
+   ellipse segment is not expressible as a radius, and complex clip-path is the
+   iOS trap this project is built to avoid. */
+.band__cap {
+  display: block;          /* inline SVG would leave a text-node gap under it */
+  width: 100%;
+  color: var(--ground-alt);
+}
+
+.band__cap--top    { height: 90px; }
+.band__cap--bottom { height: 60px; }
+
+@media (max-width: 900px) {
+  .band__cap--top    { height: 52px; }
+  .band__cap--bottom { height: 36px; }
+}
+
+/* --------------------------------------------------------------------------
+   Small vertical labels in the outer margin
+
+   The anchor's densest small device: 30×70 and 32×140px runs of vertical type
+   set OUTSIDE the content column, in the 80px page gutter — "Aug.1" at the top
+   right of the key visual, "10時発売!!" at its lower left. They are what stops
+   the margin reading as empty.
+
+   Anchored to the container edge rather than the viewport so they hold their
+   distance from the copy at every width, and dropped below 1024px where the
+   gutter is 40px and there is no room for them.
+   -------------------------------------------------------------------------- */
+.edge-label {
+  position: absolute;
+  top: 40px;
+  z-index: 2;
+  writing-mode: vertical-rl;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .22em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.edge-label--left  { left:  max(14px, calc(50% - var(--w-container) / 2 - var(--edge-out, 0px))); }
+.edge-label--right { right: max(14px, calc(50% - var(--w-container) / 2 - var(--edge-out, 0px))); }
+
+/* Sections whose content fills the 1280 container need the label pushed a
+   further 46px out; the key visual and the store block sit in `.narrow`
+   (1120) and already have the room. */
+.edge-label--out { --edge-out: 46px; }
+
+.edge-label--low { top: auto; bottom: 96px; }
+.edge-label--mid { top: 44%; }
+
+@media (max-width: 1024px) { .edge-label { display: none; } }
+
+/* --------------------------------------------------------------------------
+   Standfirst — one or two lines under a section head.
+
+   Deliberately NOT on every section. The anchor has none at all, so putting a
+   line under all ten heads would be ten repetitions of an invention; four
+   sections carry one, and the rails that follow a head directly are left bare
+   the way the anchor leaves them.
+   -------------------------------------------------------------------------- */
+.standfirst {
+  max-width: 46em;
+  margin-bottom: 44px;
+}
+
+.standfirst--wide { max-width: none; }
+
+/* --------------------------------------------------------------------------
+   1 — KEY VISUAL
+
+   Measured 1120×1120 at the top of the anchor: a square plate the full width
+   of `.narrow`, with the caption and a filled button on one line beneath it.
+   Three plates here, scrolled natively with snap points; the controls under
+   them are the same progress track and 54φ pair the product rails use.
+   -------------------------------------------------------------------------- */
+.kv__rail > * {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+.kv__figure {
+  overflow: hidden;
+  background: var(--ground-alt);
+  height: 1120px;
+}
+
+.kv__figure > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Stepped rather than fluid, so the height is never derived from `100vw` —
+   which counts the scrollbar and would make the plate a few pixels off square
+   on desktop Windows for no benefit. */
+@media (max-width: 1280px) { .kv__figure { height: 900px; } }
+@media (max-width: 1024px) { .kv__figure { height: 720px; } }
+@media (max-width:  900px) { .kv__figure { height: 560px; } }
+@media (max-width:  540px) { .kv__figure { height: 420px; } }
+
+/* Caption left, button right, on one line — measured on the anchor, where the
+   caption sits in the wide remainder and the button is flush to the column. */
+.kv__foot {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding-top: 46px;
+}
+
+.kv__title {
+  flex: 1;
+  text-align: center;
+}
+
+.kv__foot .btn { flex: none; }
+
+.kv__count {
+  flex: none;
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: .16em;
+  color: var(--ink-sub);
+}
+
+@media (max-width: 900px) {
+  .kv__foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    padding-top: 32px;
+  }
+
+  .kv__title { text-align: left; }
+}
+
+/* --------------------------------------------------------------------------
+   2 — NEW ARRIVALS  /  3 — PICK UP
+
+   Two rails in a row is exactly what the anchor does (New arrivals, then
+   Re stock), so the pair is faithful — but two identical modules stacked is
+   also the most legible way to look generated. The second rail therefore runs
+   narrower slides, a shorter plate and a caption block, which the first does
+   not have: the anchor's own product cards carry no text at all, and base.css
+   hides `.card--product .card__body` for that reason.
+   -------------------------------------------------------------------------- */
+.rail-block { position: relative; }
+
+/* Pick up: 334-wide slides against New arrivals' 400. */
+.rail--pickup > * { flex: 0 0 334px; }
+.rail--pickup .card__media { height: 420px; }
+
+.card--priced .card__body {
+  display: block;          /* overrides base.css's caption-less product card */
+  padding-top: 22px;
+}
+
+.card__no {
+  font-size: var(--fs-label);
+  line-height: 1;
+  letter-spacing: .12em;
+  color: var(--ink-sub);
+  margin-bottom: 12px;
+}
+
+.card__price {
+  margin-top: 8px;
+  font-size: var(--fs-small);
+  letter-spacing: .04em;
+  color: var(--ink-sub);
+}
+
+@media (max-width: 900px) {
+  .rail--pickup > * { flex: 0 0 260px; }
+  .rail--pickup .card__media { height: 330px; }
+}
+
+/* --------------------------------------------------------------------------
+   4 — COORDINATES
+
+   The band the anchor gives an arc at both ends. Its title is hand-drawn
+   rather than set: a tapered ink stroke under a large light seasonal word,
+   with a small drawn sprig beside it. Drawn as SVG here, never generated —
+   the imagery on this site is centrally managed.
+   -------------------------------------------------------------------------- */
+.coord__mark {
+  position: relative;
+  max-width: 760px;
+  margin-bottom: 56px;
+}
+
+.coord__word {
+  font-size: clamp(34px, 4.4vw, 62px);
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: -.04em;
+}
+
+.coord__stroke {
+  display: block;
+  width: 100%;
+  max-width: 726px;
+  height: auto;
+  margin-top: 10px;
+  color: var(--ink);
+}
+
+/* Beside the word, above the stroke — not over its tapered end. */
+.coord__sprig {
+  position: absolute;
+  right: 8px;
+  bottom: 58px;
+  width: 96px;
+  height: auto;
+  color: var(--ink-sub);
+}
+
+/* Look plates. Narrower than a product slide so the band reads as a different
+   kind of module, and 2:3 so the styling photographs are barely cropped. */
+.rail--looks > * { flex: 0 0 300px; }
+
+.look__media {
+  height: 420px;
+  overflow: hidden;
+  background: var(--ground);
+}
+
+.look__media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.look__cap {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.coord__foot {
+  display: flex;
+  justify-content: center;
+  padding-top: 72px;
+}
+
+@media (max-width: 900px) {
+  .rail--looks > * { flex: 0 0 240px; }
+  .look__media { height: 336px; }
+  .coord__sprig { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   5 — FEATURE → the pop-up page
+
+   The one place on this page where the site raises its voice, and the only
+   place red appears: a single marquee line, whose colour comes from
+   motion.css. The band is the feature page's ground, so the hand-off is
+   legible as a change of paper before a word is read.
+
+   The marquee is a good deal smaller here than the 140px measured on the
+   feature page itself. Matching that size would spend the loudest note in the
+   palette on the quietest page and leave the pop-up page nothing louder to
+   arrive with.
+   -------------------------------------------------------------------------- */
+.feature { --fs-marquee: clamp(40px, 4.6vw, 76px); }
+
+.feature .marquee {
+  margin-block: 8px 72px;
+  padding-block: 6px;
+}
+
+/* 640 rather than a round 600: the feature plate is a purpose-made 2:1 crop
+   and the container is 1280, so this height shows it uncropped. */
+.feature__figure {
+  height: 640px;
+  overflow: hidden;
+  background: var(--ground-alt);
+}
+
+.feature__figure > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.feature__copy {
+  max-width: 720px;
+  margin-inline: auto;
+  padding-top: 60px;
+  text-align: center;
+}
+
+.feature__copy .label { margin-bottom: 20px; }
+
+.feature__h {
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: -.03em;
+  margin-bottom: 26px;
+}
+
+.feature__copy p + p { margin-top: 1.4em; }
+
+.feature__copy .btn--feature { margin-top: 44px; }
+
+@media (max-width: 900px) {
+  .feature__figure { height: 380px; }
+  .feature .marquee { margin-block: 4px 48px; }
+}
+
+@media (max-width: 540px) {
+  .feature__figure { height: 300px; }
+}
+
+/* --------------------------------------------------------------------------
+   6 — NEWS  /  7 — CONTENTS
+
+   Both grids are base.css's. The only additions are the date-and-label line
+   above each title and the centred button that closes each block, both
+   measured on the anchor.
+   -------------------------------------------------------------------------- */
+.card--news .card__meta,
+.card--contents .card__meta {
+  margin-bottom: 18px;
+}
+
+.card--news .card__meta .date,
+.card--contents .card__meta .date {
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+.card--news .card__title { line-height: 1.7; }
+
+.grid-foot {
+  display: flex;
+  justify-content: center;
+  padding-top: 88px;
+}
+
+/* --------------------------------------------------------------------------
+   8 — COLLECTION
+
+   Measured on the anchor as a deliberately unbalanced block: the main plate
+   runs off the left edge of the viewport, a narrow column of type sits at the
+   right of the container, and a second smaller plate overlaps the first at the
+   bottom and drops well below it. Nothing here is centred, which is precisely
+   why it does not read as another card grid.
+
+   `padding-right` resolves to the container gutter at 1440 and never falls
+   below the page gutter at narrow widths, so the type column always lines up
+   with the container edge above it.
+   -------------------------------------------------------------------------- */
+.collection {
+  /* Named so the offset plate below can be placed against the type column
+     rather than against a percentage of the viewport. Anchoring it to a
+     percentage looked right at 1440 and slid under the type between 900 and
+     1266px, where the column is still 380 wide but the plate is not. */
+  --col-copy: 380px;
+  --col-gap:  140px;
+  --pad-out:  max(var(--space-gutter), calc(50% - var(--w-container) / 2));
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--col-copy);
+  column-gap: var(--col-gap);
+  align-items: start;
+  min-height: 900px;
+  padding-right: var(--pad-out);
+}
+
+.collection__main {
+  height: 620px;
+  overflow: hidden;
+  background: var(--ground-alt);
+}
+
+/* 36px past the main plate's right edge, at every width. */
+.collection__aside {
+  position: absolute;
+  right: calc(var(--col-copy) + var(--col-gap) + var(--pad-out) - 36px);
+  top: 480px;
+  width: 300px;
+  height: 420px;
+  overflow: hidden;
+  background: var(--ground-alt);
+}
+
+.collection__main > img,
+.collection__aside > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.collection__copy {
+  position: relative;
+  padding-top: 92px;
+}
+
+.collection__h {
+  font-size: clamp(30px, 2.8vw, 40px);
+  font-weight: 300;
+  line-height: 1.34;
+  letter-spacing: -.04em;
+  margin-block: 22px 26px;
+}
+
+.collection__copy .btn { margin-top: 38px; }
+
+/* The vertical year — the anchor sets one beside this block and nowhere else
+   on the page. 16px, hung in the gap left of the type column. */
+.collection__year {
+  position: absolute;
+  left: -58px;
+  top: 96px;
+  writing-mode: vertical-rl;
+  font-size: var(--fs-nav);
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: .2em;
+  color: var(--ink-sub);
+}
+
+@media (max-width: 1024px) {
+  .collection { --col-copy: 320px; --col-gap: 64px; }
+  .collection__year { display: none; }
+}
+
+@media (max-width: 900px) {
+  .collection {
+    grid-template-columns: 1fr;
+    row-gap: 40px;
+    min-height: 0;
+    padding-inline: var(--space-gutter);
+  }
+
+  .collection__main { height: 420px; }
+
+  .collection__aside {
+    position: static;
+    width: 60%;
+    height: 300px;
+    margin-left: auto;
+  }
+
+  .collection__copy { padding-top: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   9 — CRAFTSMANSHIP
+
+   The same unbalanced device mirrored — type left, plate running off the right
+   edge. Mirroring rather than repeating is the anchor's own move: these two
+   sections sit one after the other and would otherwise be the same block
+   twice.
+   -------------------------------------------------------------------------- */
+.craft {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  column-gap: 120px;
+  align-items: center;
+  padding-left: max(var(--space-gutter), calc(50% - var(--w-container) / 2));
+}
+
+.craft__figure {
+  height: 620px;
+  overflow: hidden;
+  background: var(--ground-alt);
+}
+
+.craft__figure > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.craft__h {
+  font-size: clamp(26px, 2.4vw, 34px);
+  font-weight: 300;
+  line-height: 1.4;
+  letter-spacing: -.04em;
+  margin-block: 20px 24px;
+}
+
+.craft__copy p + p { margin-top: 1.4em; }
+.craft__copy .btn { margin-top: 36px; }
+
+@media (max-width: 1024px) {
+  .craft { grid-template-columns: 340px minmax(0, 1fr); column-gap: 56px; }
+}
+
+@media (max-width: 900px) {
+  .craft {
+    grid-template-columns: 1fr;
+    row-gap: 40px;
+    padding-inline: var(--space-gutter);
+  }
+
+  .craft__figure { height: 420px; }
+}
+
+/* --------------------------------------------------------------------------
+   10 — AOKI STANDARD STORE
+
+   Measured 1120×451 with a 1px rule and a radius between 6 and 10px — the only
+   outlined box on the anchor's home page, and the reason it is worth keeping:
+   a single ruled frame at the very bottom closes the page without another
+   band of colour.
+   -------------------------------------------------------------------------- */
+.store__box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 460px;
+  column-gap: 56px;
+  align-items: center;
+  padding: 56px 60px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+}
+
+.store__figure {
+  height: 330px;
+  overflow: hidden;
+  background: var(--ground-alt);
+}
+
+.store__figure > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.store__h {
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: -.04em;
+  margin-bottom: 18px;
+}
+
+.store__list {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  row-gap: 10px;
+  column-gap: 16px;
+  margin-top: 22px;
+  font-size: var(--fs-small);
+  line-height: 1.67;
+  letter-spacing: .04em;
+}
+
+.store__list dt { color: var(--ink-sub); }
+.store__list dd { margin: 0; }
+
+.store__map {
+  width: 240px;
+  height: auto;
+  margin-top: 28px;
+  color: var(--ink-sub);
+}
+
+@media (max-width: 900px) {
+  .store__box {
+    grid-template-columns: 1fr;
+    row-gap: 36px;
+    padding: 36px 28px 40px;
+  }
+
+  .store__figure { height: 260px; }
+}
+
+/* --------------------------------------------------------------------------
+   Line drawings
+
+   Two on the page: a sewing set beside the craft copy and an abstract street
+   plan in the store block. Both are stroked, never filled, and take their
+   colour from the element so a single rule sets both.
+   -------------------------------------------------------------------------- */
+.linework {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.craft__tools {
+  width: 200px;
+  height: auto;
+  margin-bottom: 34px;
+  color: var(--ink-sub);
+}
+
+/* --------------------------------------------------------------------------
+   Rail controls
+
+   base.css owns the geometry. These two lines only stop the slide counter from
+   shrinking and give the arrow glyph its direction.
+   -------------------------------------------------------------------------- */
+.arrow svg { display: block; }
+.arrow--prev svg { transform: scaleX(-1); }
+
+/* --------------------------------------------------------------------------
+   Hairlines
+
+   The anchor uses two weights and no more: --line for a rule inside a block,
+   --line-soft for one that separates blocks. Both already exist in base.css as
+   `.rule` and `.rule--soft`; the only thing needed here is the space around
+   them, which differs by where they sit.
+   -------------------------------------------------------------------------- */
+.rule--head { margin-bottom: 40px; }
+.rule--foot { margin-top: 56px; }

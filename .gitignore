@@ -1,0 +1,11 @@
+# Work / QC artefacts — never part of the published site
+_rough/
+_notes/
+_shots/
+_*.html
+_*.ps1
+*.bak
+image-prompts*.md
+node_modules/
+Thumbs.db
+.DS_Store

@@ -1,0 +1,405 @@
+/* ==========================================================================
+   motion.css — every scroll reveal on the site, in one file.
+   Loaded after base.css. Frozen after P3: page-*.css sets variables, never
+   rewrites the rules below.
+
+   Design rules this file follows:
+
+   1. Only `opacity` and 2D `transform` are animated. The build before last
+      transitioned `filter: grayscale(100%) blur(20px)` on ~30Mpx of imagery,
+      which cost 88–500ms frames mid-scroll (measured: worst frame 88.2ms →
+      19.1ms after removal) and leaves a smear residue on iOS/WebKit. Nothing
+      here touches `filter`. 2D `translate()` is used rather than
+      `translate3d()` so ~100 revealed elements do not each hold a permanent
+      compositing layer.
+   2. Motion is gated on `html.js`. Without JavaScript the page renders fully
+      visible instead of blank.
+   3. Placement and motion never fight over `transform`. Both are folded into
+      ONE composed expression: placement lives in --tx/--ty/--rot/--sc, the
+      pre-reveal offset in --from-x/--from-y/--from-rot/--from-sc. The
+      previous build hand-composed these per section, in two places, and the
+      copies drifted apart. Here, `.is-revealed` simply drops the --from-*
+      terms — so the hidden and revealed rules can never disagree, whatever
+      the placement.
+   4. Stacked layers cascade back-to-front via `--reveal-delay`, so the three
+      offset copies assemble instead of popping at once.
+   5. `?shot=1` pinning is ONE rule keyed on `[data-reveal]`. The previous
+      build listed the elements by hand here and again in reveal.js; the lists
+      drifted, and the SP-only overlay was photographed blank at phone widths
+      for months. There is one source of truth now.
+   6. No `prefers-reduced-motion` guard (2026-07-30 ruling). Anchor fidelity
+      is the goal and the RM branch used to mask specificity bugs.
+   7. No shadows of any kind — `box-shadow` and `text-shadow` alike. The
+      anchor measures 0 shadows across both reference pages, and readability
+      of copy over imagery is bought with whitespace composed into the photo
+      (設計図 §8-3), never with a halo added afterwards.
+
+   Colour, type and spacing tokens live in base.css. This file owns only the
+   motion tokens below.
+   ========================================================================== */
+
+:root {
+  /* ⚠ Correction. 設計図 §3-5 records the anchor's reveal as
+     `opacity / 1s / ease` on ~60 elements and sets 1000ms expo-out to match.
+     That combination does not occur anywhere in the measured data. What the
+     anchor actually runs:
+
+       home page     opacity 0.5s easeInQuad                        (×4)
+       feature page  opacity 0.6s easeInQuad + transform 0.6s easeOutQuad (×19)
+                     the same pair at 0.7s                          (×8)
+                     a 0.3s pair for small elements                 (×8)
+
+     The interesting part is not the duration — it is that opacity and
+     transform get DIFFERENT curves. Opacity eases IN, so an element stays
+     near-invisible while it travels and resolves late; transform eases OUT,
+     so it decelerates into place. Content materialises as it settles rather
+     than sliding in already visible. One shared curve cannot produce that,
+     and it is the kind of detail nobody adds by default. */
+  --ease-fade: cubic-bezier(.55, .085, .68, .53);   /* easeInQuad  — opacity */
+  --ease-move: cubic-bezier(.25, .46, .45, .94);    /* easeOutQuad — transform */
+
+  --dur-reveal:      600ms;
+  --dur-reveal-slow: 700ms;
+  --dur-reveal-fast: 300ms;
+
+  /* The opening of the feature page, which is a different act from a scroll
+     reveal: the first view is already on screen, so it plays once, on load,
+     in a fixed order. The curve and the duration are measured, not invented —
+     the reference's feature page runs `transform | 1s |
+     cubic-bezier(.86,0,.07,1)` on exactly TWO elements, and the two big
+     masses of its first view are the only things that could be. Slow at both
+     ends, fast through the middle: the mass arrives rather than slides. */
+  --dur-hero:  1000ms;
+  --ease-hero: cubic-bezier(.86, 0, .07, 1);   /* easeInOutQuint */
+
+  /* Back-to-front cascade for the three stacked layers. */
+  --stagger: 130ms;
+
+  /* Default pre-reveal lift, in the element's own height. Percentages keep
+     this proportional at every width instead of needing a value per
+     breakpoint. */
+  --rise: 4%;
+}
+
+/* Per-page defaults, on the same `data-*` convention the anchor uses for
+   state. index is the quiet end of the site and takes the home page's own
+   500ms opacity-only figure; the deeper pages take the feature page's 600ms. */
+body[data-page="index"] { --dur-reveal: 500ms; }
+body[data-page="women"],
+body[data-page="men"],
+body[data-page="popup"] { --dur-reveal: 600ms; }
+
+/* --------------------------------------------------------------------------
+   The primitive
+
+   Everything that reveals carries `data-reveal` in the markup. Bare
+   `data-reveal` is the anchor's own reveal: opacity only, nothing moves.
+   That is deliberate — index.html reproduces the anchor's home page, where
+   the stillness IS the design. Movement is opt-in, and gets richer the
+   deeper into the site you go (設計図 §2 深度設計).
+   -------------------------------------------------------------------------- */
+html.js [data-reveal] {
+  transition:
+    opacity   var(--dur, var(--dur-reveal)) var(--ease-fade) var(--reveal-delay, 0ms),
+    transform var(--dur, var(--dur-reveal)) var(--ease-move) var(--reveal-delay, 0ms);
+  opacity: 0;
+  transform:
+    translate(calc(var(--tx, 0px) + var(--from-x, 0px)),
+              calc(var(--ty, 0px) + var(--from-y, 0px)))
+    rotate(calc(var(--rot, 0deg) + var(--from-rot, 0deg)))
+    scale(calc(var(--sc, 1) * var(--from-sc, 1)));
+}
+
+html.js [data-reveal].is-revealed {
+  opacity: 1;
+  transform:
+    translate(var(--tx, 0px), var(--ty, 0px))
+    rotate(var(--rot, 0deg))
+    scale(var(--sc, 1));
+}
+
+/* --------------------------------------------------------------------------
+   Motion flavours — set only the --from-* terms, so they compose with any
+   placement without a specificity fight.
+   -------------------------------------------------------------------------- */
+html.js [data-reveal="rise"]  { --from-y: var(--rise); }
+html.js [data-reveal="sink"]  { --from-y: calc(-1 * var(--rise)); }
+html.js [data-reveal="left"]  { --from-x: calc(-1 * var(--rise)); }
+html.js [data-reveal="right"] { --from-x: var(--rise); }
+html.js [data-reveal="zoom"]  { --from-sc: .984; }
+html.js [data-reveal="lift"]  { --from-y: var(--rise); --from-sc: .984; }
+
+/* Duration overrides ride on --dur so the two curves stay paired. */
+html.js [data-reveal][data-reveal-slow] { --dur: var(--dur-reveal-slow); }
+html.js [data-reveal][data-reveal-fast] { --dur: var(--dur-reveal-fast); }
+
+/* --------------------------------------------------------------------------
+   Hero intro
+
+   Separate from the reveal engine on purpose. `[data-reveal]` waits for an
+   intersection, and the first view has already intersected — wiring it there
+   would fire everything on the same frame and there would be no opening, only
+   a page that is suddenly present. This plays once, on load, in an order set
+   by `--intro-delay`, and js/main.js flips the switch.
+
+   Two of the parts are `--mass`: the character behind and the masked film in
+   front. They get the measured 1s easeInOutQuint. Everything else gets the
+   ordinary reveal pair, so the supporting parts stay supporting.
+   -------------------------------------------------------------------------- */
+/* ⚠ The transition lives on the READY state, never on the hidden one. Declare
+   it on the hidden rule and the element transitions INTO hiding the moment the
+   rule first matches — which is only harmless if the stylesheet has always
+   applied before the first style resolution. It has not: measured in WebKit,
+   the character painted at full opacity, then faded DOWN to 0.70 over 400ms,
+   then came back up. An opening that begins by making the page disappear is
+   worse than no opening at all. With the transition on the ready side the
+   hidden state is instant and only the arrival is animated. */
+html.js [data-intro] .intro       { opacity: 0; }
+html.js [data-intro] .intro--mass { transform: scale(var(--intro-from, .92)); }
+html.js [data-intro] .intro--rise { transform: translateY(26px); }
+html.js [data-intro] .intro--widen{ transform: scaleX(.86); }
+
+html.js [data-intro="ready"] .intro {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity   var(--dur-reveal) var(--ease-fade) var(--intro-delay, 0ms),
+    transform var(--dur-reveal) var(--ease-move) var(--intro-delay, 0ms);
+}
+
+html.js [data-intro="ready"] .intro--mass {
+  transition:
+    opacity   var(--dur-hero) var(--ease-fade) var(--intro-delay, 0ms),
+    transform var(--dur-hero) var(--ease-hero) var(--intro-delay, 0ms);
+}
+
+/* The marquee holds still until its frame has arrived, then runs. */
+html.js [data-intro] .marquee__lines { animation-play-state: paused; }
+html.js [data-intro="ready"] .marquee__lines { animation-play-state: running; }
+
+/* --------------------------------------------------------------------------
+   Three-layer stack — the one piece of the previous site kept as a fixture.
+
+   Structure (identical for all four types):
+
+     <div class="stack stack--d">
+       <div class="stack__layer stack__layer--a" data-reveal="…"><img …-base.webp></div>
+       <div class="stack__layer stack__layer--b" data-reveal="…"><img …-base.webp></div>
+       <div class="stack__layer stack__layer--c" data-reveal="…"><img …-reveal.webp></div>
+     </div>
+
+   Layer b sits in flow and gives the stage its height; a and c are absolute.
+   No `display:grid` and no `aspect-ratio` anywhere in here — grid stretch ×
+   aspect-ratio × an absolute child is the combination that collapses a box to
+   0×0 in WebKit, and this site introduces grids for the first time in P3.
+
+   Placement is expressed in PERCENTAGES of each layer's own box (--lw) and of
+   the stage (offsets), so a type survives every width without a value per
+   breakpoint. The previous build spent 54 declarations across 5 breakpoints
+   on this and still broke when an image changed.
+   -------------------------------------------------------------------------- */
+.stack {
+  position: relative;
+  width: 100%;
+  margin-inline: auto;
+  /* clip, not hidden: `overflow-x:hidden` promotes overflow-y to `auto` and
+     turns the stage into an inner scroller on iOS. */
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+.stack__layer {
+  width: var(--lw, 100%);
+}
+
+.stack__layer > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.stack__layer--a { position: absolute; left: 0;  top: 0;     z-index: 1; }
+.stack__layer--b { position: relative;                        z-index: 2; margin-inline: auto; }
+.stack__layer--c { position: absolute; right: 0; bottom: 0;  z-index: 3; }
+
+/* Anything laid over the stack (product copy, labels) rides above all three. */
+.stack__copy { position: absolute; inset: 0; z-index: 6; }
+
+/* Back-to-front cascade, shared by every type. */
+.stack__layer--a { --reveal-delay: 0ms; }
+.stack__layer--b { --reveal-delay: var(--stagger); }
+.stack__layer--c { --reveal-delay: calc(var(--stagger) * 2); --dur: var(--dur-reveal-slow); }
+
+/* Type rules carry the `html.js` prefix so they outrank the motion flavours
+   above. Without it `html.js [data-reveal="rise"]` (0,2,1) beats
+   `.stack--a .stack__layer--a` (0,2,0), and a layer's own offset is silently
+   replaced by the generic rise — the three plates then travel together
+   instead of assembling. A stack layer's type always wins over its flavour. */
+
+/* Placement uses box offsets — `left` / `right` / `top` / `bottom` and the
+   stage's own padding — NOT `--tx` / `--ty`. Translating a plate that is
+   already anchored to an edge pushes it outside the stage, where
+   `overflow-x: clip` cuts it: measured at 48–58px off the front plate of
+   men's hero between 768 and 900px, which is the colour plate and the one
+   that matters. The stage's padding insets the middle layer instead, so the
+   outer two can sit flush at the edges and the whole arrangement stays
+   inside. `--tx`/`--ty` are left to the one job box offsets cannot do —
+   centring an element of unknown height — and to the reveal delta.
+
+   --step doubles as the stage padding, so a page widening the offset widens
+   the room that receives it in the same stroke. */
+
+/* --- Type A — vertical offset. women.html hero -------------------------- */
+.stack--a { --lw-back: 70%; --lw-mid: 100%; --step: 8%; padding-block: var(--step); }
+html.js .stack--a .stack__layer--a { --lw: var(--lw-back); left: calc((100% - var(--lw)) / 2); top: 0;    --from-y: 40px; }
+html.js .stack--a .stack__layer--b { --lw: var(--lw-mid);                                                 --from-y: 20px; }
+html.js .stack--a .stack__layer--c { --lw: var(--lw-back); left: calc((100% - var(--lw)) / 2); right: auto; bottom: 0; --from-y: 0px; }
+
+/* --- Type B — horizontal offset. men.html hero -------------------------- */
+.stack--b { --lw-back: 68%; --lw-mid: 100%; --step: 9%; padding-inline: var(--step); }
+html.js .stack--b .stack__layer--a { --lw: var(--lw-back); left: 0;                top: 50%; --ty: -50%; --from-x: -56px; }
+html.js .stack--b .stack__layer--b { --lw: var(--lw-mid);                                                --from-x: -28px; }
+html.js .stack--b .stack__layer--c { --lw: var(--lw-back); left: auto; right: 0;   top: 50%; bottom: auto; --ty: -50%; --from-x: 0px; }
+
+/* --- Type C — rotated fan. styling blocks on women / men ----------------
+   The front plate is 78%, not 100%. At full width it covers both others and
+   the block renders as one photograph with a faint edge — the three-plate
+   idea disappears exactly where the page says it is showing three. The
+   plates are also anchored to opposite corners, because rotating three
+   concentric plates only exposes their corners. They sit 3% in from the
+   edges so the rotation itself has somewhere to go. */
+.stack--c { --lw-back: 72%; --lw-mid: 100%; --fan: 4deg; --step: 8%; padding: calc(var(--step) * .75) var(--step); }
+/* 5% in from each edge, not 3%. A rotated plate's corner reaches past its own
+   box, and the stage clips horizontally — at --fan: 5deg the top-left corner
+   was being sliced off flat by 5–10px across every width above 600. 5% clears
+   the largest fan the type is meant to take. */
+html.js .stack--c .stack__layer--a {
+  --lw: var(--lw-back); left: 5%; top: 0;
+  --rot: calc(-1 * var(--fan));  --from-rot: -2deg; --from-sc: .98;
+}
+html.js .stack--c .stack__layer--b {
+  --lw: var(--lw-mid);
+  --rot: calc(-.5 * var(--fan)); --from-rot: -1deg; --from-sc: .98;
+}
+html.js .stack--c .stack__layer--c {
+  --lw: 78%; left: auto; right: 5%; bottom: 0;
+  --rot: 0deg; --from-rot: 0deg; --from-sc: .98;
+}
+
+/* --- Type D — offset overlap. popup.html product groups ------------------
+   The previous site's arrangement, restated in percentages. Note the two
+   back layers now carry a genuinely different grade (ffmpeg C-preset:
+   hue=s=0.25, brightness=-0.04, contrast=0.95) — before, layers a and b
+   pointed at the SAME file, so the middle step did nothing visually.        */
+.stack--d { --lw-back: 62%; --lw-mid: 100%; }
+html.js .stack--d .stack__layer--a { --lw: var(--lw-back); left: auto; right: 3%;  top: 0;      --from-y: var(--rise); }
+html.js .stack--d .stack__layer--b { --lw: var(--lw-mid);                                        --from-y: var(--rise); }
+html.js .stack--d .stack__layer--c { --lw: var(--lw-back); left: 3%;  right: auto; bottom: 0;   --from-y: var(--rise); }
+
+/* Phones: the fan and the wide offsets stop reading at narrow widths — the
+   layers close up and the stage stops being a composition. Collapse every
+   type to a single plate and let the front layer carry the section.
+
+   Written at (0,3,1) on purpose. Media queries add no specificity of their
+   own, so a page-level rule like `.women-hero .stack__layer--c` (0,2,0) would
+   otherwise keep its desktop width here and the plate would render at 66% on
+   a phone. This has to outrank anything a page is likely to write. */
+@media (max-width: 540px) {
+  html.js .stack .stack__layer--a,
+  html.js .stack .stack__layer--b { display: none; }
+  html.js .stack .stack__layer--c {
+    position: relative;
+    left: auto; right: auto; top: auto; bottom: auto;
+    --lw: 100%; --tx: 0px; --ty: 0px; --rot: 0deg; --sc: 1;
+    --reveal-delay: 0ms;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Marquee — measured on the anchor at 10s linear infinite, 140px, in red.
+   Used by the pop-up hero frame and the section that trails it.
+   -------------------------------------------------------------------------- */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+.marquee__lines {
+  display: flex;
+  width: max-content;
+  animation: marquee 10s linear infinite;
+}
+
+/* 500, not the inherited 400. At display size a regular weight runs thin and
+   the line reads as small type that has been enlarged rather than as type cut
+   for the size. Applied to every marquee on the site, not just the feature
+   page's, because they are the same component and one of them being lighter
+   than the others would only look like an oversight. */
+.marquee__line {
+  flex: none;
+  white-space: nowrap;
+  font-size: var(--fs-marquee);
+  font-weight: 500;
+  line-height: 1;
+  color: var(--red);
+}
+
+/* ⚠ The one reduced-motion rule on the site, and a deliberate exception to
+   the 2026-07-30 ruling that no `prefers-reduced-motion` guard is placed.
+
+   That ruling is about scroll reveals, where the RM branch had been masking
+   specificity bugs — strip it and content vanished. This is a different
+   thing: content that moves by itself, forever, with no way to stop it.
+   WCAG 2.2.2 covers exactly that above five seconds, and it applies even to
+   `aria-hidden` decoration because the people it protects are reacting to
+   the movement, not reading it.
+
+   Scoped to the marquee alone. It sets `animation-play-state` and touches no
+   reveal, no `[data-reveal]`, and no opacity, so it cannot hide anything the
+   way the old guard could. Revert by deleting this block. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee__lines { animation-play-state: paused; }
+}
+
+/* --------------------------------------------------------------------------
+   Screenshot / QC mode — ?shot=1
+
+   reveal.js adds `is-shot` and creates no observers, so nothing would ever
+   reveal. One rule pins every target to its settled state. Because it keys on
+   the same attribute the engine observes, it cannot drift out of sync the way
+   the hand-maintained list did.
+
+   ⚠ This mode hides missed observations by construction: an element the
+   engine never picks up still looks correct here. Always take one real
+   scrolling capture as well before signing a page off.
+   -------------------------------------------------------------------------- */
+html.is-shot [data-reveal] {
+  opacity: 1 !important;
+  transform:
+    translate(var(--tx, 0px), var(--ty, 0px))
+    rotate(var(--rot, 0deg))
+    scale(var(--sc, 1)) !important;
+  transition: none !important;
+}
+
+/* The hero intro is pinned the same way, and for the same reason: js/main.js
+   never flips the switch in shot mode, so nothing would arrive. */
+html.is-shot [data-intro] .intro {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Marquees are frozen at their start for a capture, not left running.
+   `animation-play-state: paused` would stop them wherever they happened to be
+   when the shutter fell, so every screenshot caught a different phase — and on
+   a band where the crop only shows part of the line, that phase decided
+   whether the still contained a readable date or two stray red letters.
+   Removing the animation puts the lines back at translateX(0): deterministic,
+   and reading from the beginning. */
+html.is-shot .marquee__lines { animation: none; }

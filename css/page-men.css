@@ -1,0 +1,627 @@
+/* ==========================================================================
+   page-men.css — the MEN category page, and nothing else.
+
+   Loaded third, after base.css and motion.css. Both of those are frozen: this
+   file sets variables and adds page-specific blocks, and never rewrites a rule
+   or restates a token. Every colour below is a `var()`.
+
+   The brief for this page is that it must not read as women.html recoloured.
+   What is deliberately different, and why:
+
+     hero        three-layer type B (horizontal) against type A (vertical), and
+                 the three plate widths are set individually — 54 / 84 / 66% —
+                 so the stage reads as three photographs, not one with a halo.
+     grid        three columns, not four. Set in `.narrow` (1120) rather than
+                 the 1280 container, so the cards are a different size as well
+                 as a different count.
+     fan         type C runs ONCE and large here, off-centre against a numbered
+                 index, at --fan: 5deg. women runs it small and twice.
+     reading     square-cornered thumbs, two across, laid out horizontally
+                 (thumb left / text right) on faces cream, gray, salmon and
+                 mustard. women runs four round thumbs across on blue, mustard,
+                 teal and sage.
+     rhythm      no two sections share a top margin: 24 / tight / airy /
+                 default / tight / airy. The reference's sections measure 970–1722px
+                 and the flat-padding page is the loudest tell of a generated
+                 one (フロー書 §9-B).
+     decoration  a measuring vocabulary — seam stitch, registration mark, tape
+                 rule, crease diagram, corner brackets, floor plan. Each device
+                 is drawn once, in one section only.
+
+   Two constitutional rules this file keeps:
+
+   1. --red and --ink-deep appear in ONE block, at the very bottom, under the
+      POP-UP band. Nowhere above it. That is the depth design working in colour
+      and not only in ornament (設計図 §2 / §0.5-D): this page stays quiet and
+      the red arrives with the hand-off to the feature page. women.html spends
+      its red on a marquee; men spends it on a hairline, a label, an entrance
+      arc and one filled control, so even the loud moment is not the same one.
+   2. No `aspect-ratio`, anywhere. Every picture box carries an explicit height
+      per breakpoint. This page puts cards in stretched grid tracks, and
+      stretched track × aspect-ratio × absolute child is the trio that collapses
+      a box to 0×0 in WebKit. Removing one leg everywhere removes the class of
+      bug — and the one absolutely positioned label on this page (the crop
+      number) sits inside a flex rail, where the trio cannot form.
+
+   No shadows. No `filter`. No `prefers-reduced-motion` branch.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Page rhythm
+
+   The hero opens directly under the fixed header, so it takes a hairline gap
+   rather than a section gap. Everything after it alternates deliberately.
+   -------------------------------------------------------------------------- */
+.site-main > .section:first-child { margin-top: 24px; }
+
+
+/* --------------------------------------------------------------------------
+   Vertical micro-labels in the outer margin
+
+   The anchor's densest small device: 30×70 and 32×140px runs of vertical type
+   set OUTSIDE the content column, in the page gutter. They are most of why the
+   margins do not read as empty.
+
+   Anchored to the content column's edge rather than the viewport, so they hold
+   their distance at every width, and dropped below 1024px where the gutter is
+   40px and there is no room. `--w-edge` lets a section that runs in `.narrow`
+   pull its labels in without a second rule.
+   -------------------------------------------------------------------------- */
+.side-label {
+  position: absolute;
+  top: 56px;
+  z-index: 2;
+  writing-mode: vertical-rl;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .24em;
+  color: var(--ink-sub);
+  white-space: nowrap;
+}
+
+.side-label--left  { left:  max(14px, calc(50% - var(--w-edge, var(--w-container)) / 2 - var(--edge-out, 24px))); }
+.side-label--right { right: max(14px, calc(50% - var(--w-edge, var(--w-container)) / 2 - var(--edge-out, 24px))); }
+
+.side-label--out { --edge-out: 46px; }
+.side-label--low { top: auto; bottom: 88px; }
+.side-label--mid { top: 42%; }
+
+@media (max-width: 1024px) { .side-label { display: none; } }
+
+
+/* --------------------------------------------------------------------------
+   Small drawn devices
+
+   All inline SVG, all stroked in `currentColor`, all under 130px wide — the
+   size band 設計図 §1 counts as 小装飾. Each one is used in exactly one
+   section so the page does not repeat a mark.
+   -------------------------------------------------------------------------- */
+.deco  { display: block; color: var(--ink-sub); }
+.stamp { display: block; color: var(--ink-sub); }
+
+.deco--seam { margin: 26px 0 28px; }
+.deco--reg  { margin-bottom: 22px; }
+.deco--fold { margin-bottom: 26px; }
+
+/* The bracket closes the reading block the way an editorial page closes a
+   column — set at the right edge, under the last card. */
+.deco--bracket { margin: 46px 0 0 auto; }
+
+
+/* --------------------------------------------------------------------------
+   Shared text blocks
+
+   A standfirst under a section head is NOT put on every section: three of the
+   six carry one, and the rest open straight into the work.
+   -------------------------------------------------------------------------- */
+.standfirst {
+  max-width: 42em;
+  margin-bottom: 40px;
+}
+
+/* Two weights of rule, as the anchor has: a 1px --line for structure, and a
+   hairline at 10% for a subdivision inside a block. Opacity rather than a
+   fourth colour token, so no raw value enters this file. */
+.rule--hair {
+  border-top-color: var(--ink);
+  opacity: .1;
+}
+
+
+/* ==========================================================================
+   1 — 積層ヒーロー（型B・横ずらし3層）
+
+   Copy column left, stage right. The copy is set BESIDE the photographs and
+   not over them: 設計図 §8-3 composed a copy well into group01–06 only, and
+   readability over imagery is bought with whitespace in the picture, never
+   with a halo (there are no shadows on this site).
+   ========================================================================== */
+.men-hero__inner {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  column-gap: 80px;
+  align-items: center;
+  padding-bottom: 40px;
+}
+
+.men-hero__title { margin-top: 20px; }
+.men-hero__lead  { max-width: 33em; }
+
+/* Spec list — three rows of hard information under the lead. The anchor sets
+   this kind of block as ruled rows rather than a table. */
+.spec {
+  margin: 30px 0 36px;
+  border-top: 1px solid var(--line);
+}
+
+.spec__row {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.spec__row dt { flex: 0 0 78px; }
+
+.men-hero__btn { margin-top: 4px; }
+
+/* Plate widths, set one by one. motion.css gives layers a and c the same
+   `--lw-back` by default, which is right for a symmetric stage; here the three
+   are 54 / 84 / 66% so the eye reads left-small, centre-large, right-medium
+   and the horizontal offset has somewhere to go. --step stays a percentage:
+   px offsets per breakpoint are what made the previous build's stack 54
+   declarations long and break whenever an image changed. */
+.men-hero__stack {
+  --lw-back: 54%;
+  --lw-mid:  84%;
+  --step:     9%;
+}
+
+.men-hero__stack .stack__layer--c { --lw: 66%; }
+
+/* Named anchor for the one overlaid caption (設計図 §7). The position is a
+   name, not a magic number, and it is declared once — the failure mode the
+   method exists to prevent is a per-element coordinate going unmaintained at
+   one width. `top-left` lands above the left plate, on open ground. */
+.men-hero__stack .copy {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  max-width: 30%;
+  text-align: var(--align, left);
+}
+
+.men-hero__stack .copy[data-pos="top-left"] { --x: 0%; --y: 2%; --align: left; }
+
+.copy__no {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .16em;
+  color: var(--ink-sub);
+}
+
+.copy__text {
+  display: block;
+  margin-top: 8px;
+  font-size: var(--fs-small);
+  line-height: 1.67;
+  letter-spacing: .04em;
+}
+
+@media (max-width: 1024px) {
+  .men-hero__inner { grid-template-columns: 300px minmax(0, 1fr); column-gap: 48px; }
+}
+
+@media (max-width: 900px) {
+  .men-hero__inner { grid-template-columns: 1fr; row-gap: 52px; padding-bottom: 24px; }
+  .men-hero__copy  { max-width: 36em; }
+}
+
+/* Phones: motion.css folds the stack to its front plate, so the overlaid
+   caption has nothing to sit on. Drop it into the flow instead of leaving an
+   absolute box over a full-width photograph (設計図 §7). */
+@media (max-width: 540px) {
+  .men-hero__stack .stack__copy { position: static; }
+  .men-hero__stack .copy {
+    position: static;
+    max-width: none;
+    margin-top: 16px;
+  }
+}
+
+
+/* ==========================================================================
+   2 — カテゴリ見出し（縦組み MEN）＋ 誌面の目次
+
+   The anchor never sets a vertical heading alone: it is always carrying a
+   triple stamp, a 12px vertical standfirst or a vertical year. All three are
+   here, in the anchor's own left-to-right order (stamp, mark, standfirst,
+   year), and the column beside them holds an index so that a title band also
+   carries information.
+   ========================================================================== */
+.men-mark__inner {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  column-gap: 90px;
+  align-items: start;
+  padding-block: 16px 64px;
+}
+
+.men-mark__glyph {
+  display: flex;
+  align-items: flex-start;
+  gap: 26px;
+  padding-top: 8px;
+}
+
+/* Latin set upright rather than rotated. The rotated default is correct for
+   Japanese runs — the vertical standfirst and the year below use it — but a
+   three-letter category mark reads as a mark when its letters stack. */
+.h2-vertical--upright {
+  text-orientation: upright;
+  -webkit-text-orientation: upright;
+  letter-spacing: .28em;
+}
+
+.men-mark__standfirst {
+  writing-mode: vertical-rl;
+  margin-top: 4px;
+  color: var(--ink-sub);
+}
+
+.men-mark__year {
+  writing-mode: vertical-rl;
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1;
+  letter-spacing: .2em;
+  color: var(--ink-sub);
+}
+
+.men-mark__lead { max-width: 40em; }
+
+.men-mark .rule--hair { margin: 40px 0 8px; }
+
+.men-index ul {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 30px;
+}
+
+.men-index li { border-bottom: 1px solid var(--line); }
+
+.men-index a {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 15px 0;
+}
+
+.men-index a:hover { color: var(--ink-sub); }
+
+.men-index__no { flex: none; }
+.men-index__ja { font-size: var(--fs-nav); font-weight: 500; }
+.men-index__en { margin-left: auto; color: var(--ink-sub); }
+
+@media (max-width: 900px) {
+  .men-mark__inner { grid-template-columns: 1fr; row-gap: 48px; }
+  .men-index ul    { grid-template-columns: 1fr; }
+}
+
+
+/* ==========================================================================
+   3 — 商品一覧（3列グリッド・全10型）
+
+   Three columns in `.narrow`. Media height is stated per breakpoint and kept
+   within a few per cent of each column's natural height, so `object-fit:cover`
+   trims a sliver rather than a hem.
+
+   商品名10点と価格は確定文言。改行位置以外は一字も変えていない。
+   ========================================================================== */
+.men-selection { --w-edge: var(--w-narrow); }
+
+.men-selection__intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 48px;
+  padding-bottom: 44px;
+}
+
+.men-selection__intro .standfirst { margin-bottom: 0; }
+.men-selection__intro .deco--tape { flex: none; margin-bottom: 4px; }
+
+.card--item .card__media { height: 470px; }
+.card--item .card__body  { padding-top: 18px; }
+
+.card--item .card__meta {
+  justify-content: space-between;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--line);
+}
+
+.card__no {
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .12em;
+  color: var(--ink-sub);
+}
+
+.card--item .card__title { margin: 13px 0 5px; }
+.card__note  { color: var(--ink-sub); }
+
+.card__price {
+  margin-top: 9px;
+  font-size: var(--fs-small);
+  line-height: 1;
+  letter-spacing: .04em;
+}
+
+/* Ten items leave two cells open on the last row. Filling them with a note is
+   the editorial answer; leaving them blank is the template answer. */
+.men-selection__note {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding-top: 36px;
+  border-top: 1px solid var(--line);
+}
+
+.men-selection__note-lead {
+  font-size: var(--fs-nav);
+  font-weight: 500;
+  line-height: 1.7;
+  letter-spacing: -.02em;
+}
+
+.men-selection__note .body-sm { color: var(--ink-sub); }
+
+@media (max-width: 1024px) {
+  .card--item .card__media { height: 400px; }
+}
+
+@media (max-width: 900px) {
+  .men-selection__intro { flex-direction: column; align-items: flex-start; gap: 28px; }
+  .card--item .card__media { height: 500px; }
+}
+
+@media (max-width: 540px) {
+  .card--item .card__media  { height: 440px; }
+  .men-selection__note      { grid-column: auto; padding-top: 28px; }
+}
+
+
+/* ==========================================================================
+   4 — 積層スタイリング（型C・回転ずらし）
+
+   One fan, large, in the wide column, with a numbered index holding the
+   narrow one — then a rail of five crops underneath. Three different modes of
+   presentation on one page (stack, grid, rail) is also what stops the page
+   settling into a single device.
+   ========================================================================== */
+.men-styling__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 440px;
+  column-gap: 80px;
+  align-items: start;
+  padding-bottom: 84px;
+}
+
+/* motion.css's type C gives the front plate 100% and the middle one --lw-mid,
+   and pins the front plate to the stage's bottom edge. The front plate is
+   therefore taller than the stage by (100% − --lw-mid) of its height, and it
+   overhangs upwards. The frame carries that overhang as padding — expressed
+   as a percentage of the stage's own width, so it stays correct at every
+   width instead of needing a value per breakpoint.
+
+     --lw-mid 84% × image ratio 1.5  →  stage height 1.26 × W
+     front plate                     →  1.5 × W
+     overhang                        →  0.24 × W   →  padding-top: 24%
+
+   The 24px at the foot is the middle plate's 2.5° rotation, which reaches
+   just past the stage's bottom edge. */
+.men-styling__stage {
+  padding-top: 24%;
+  padding-bottom: 24px;
+}
+
+.men-styling__stack {
+  --lw-back: 66%;
+  --lw-mid:  84%;
+  --fan:      5deg;
+}
+
+.men-styling__index > li {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.men-styling__index > li:first-child { border-top: 1px solid var(--line); }
+
+.men-styling__no { display: block; margin-bottom: 8px; }
+.men-styling__index h3 { margin-bottom: 4px; }
+.men-styling__index .body-sm { color: var(--ink-sub); }
+
+.men-styling__railhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 0 26px;
+  border-top: 1px solid var(--line);
+}
+
+.men-styling__hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-sub);
+}
+
+/* Narrower slides than the base rail's 400px: five crops read better as a run
+   than as three-and-a-half. */
+.men-styling__rail > * { flex: 0 0 340px; }
+
+.men-crop__media {
+  position: relative;
+  height: 460px;
+  overflow: hidden;
+  background: var(--ground-alt);
+}
+
+.men-crop__media > img { width: 100%; height: 100%; object-fit: cover; }
+
+/* A solid chip rather than bare reversed type. White text straight onto a
+   light photograph would need a shadow to hold, and there are none here. */
+.men-crop__no {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 6px 10px;
+  background: var(--ink);
+  color: var(--ink-rev);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .12em;
+}
+
+.men-crop figcaption { padding-top: 14px; color: var(--ink-sub); }
+
+@media (max-width: 900px) {
+  .men-styling__grid  { grid-template-columns: 1fr; row-gap: 52px; padding-bottom: 60px; }
+  .men-crop__media    { height: 400px; }
+}
+
+/* Phones: motion.css folds the fan to its front plate — square to the page,
+   no overhang — so the frame's padding has nothing left to hold. */
+@media (max-width: 540px) {
+  .men-styling__stage { padding-top: 0; padding-bottom: 0; }
+  .men-styling__rail > * { flex: 0 0 74vw; }
+}
+
+
+/* ==========================================================================
+   5 — 読み物カード（矩形マスク×4・面色 cream / gray / salmon / mustard）
+
+   Two across, thumb left and text right. At 1280 the column is 624px and the
+   card's inner width 580, so the square thumb keeps its measured 290×290
+   exactly. Below 1024 the card turns vertical and the thumb becomes a
+   landscape plate at an explicit height — square CORNERS are what distinguish
+   this block from the women page's round ones, not a square aspect.
+   ========================================================================== */
+.men-reading__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  padding-bottom: 40px;
+}
+
+.men-reading__head .standfirst { margin-bottom: 0; }
+.stamp--row { flex: none; margin-top: 6px; }
+
+.card--editorial { display: flex; gap: 26px; }
+
+.card--face-cream   { --face: var(--card-cream); }
+.card--face-gray    { --face: var(--card-gray); }
+.card--face-salmon  { --face: var(--card-salmon); }
+.card--face-mustard { --face: var(--card-mustard); }
+
+.men-reading .thumb { flex: none; }
+.card__text { min-width: 0; }
+
+.card__more {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: var(--fs-small);
+  line-height: 1;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 4px;
+}
+
+.card__more:hover { color: var(--ink-sub); }
+
+@media (max-width: 1024px) {
+  .card--editorial    { flex-direction: column; gap: 18px; }
+  .men-reading .thumb { width: 100%; height: 240px; }
+}
+
+@media (max-width: 540px) {
+  .men-reading .thumb { height: 210px; }
+}
+
+
+/* ==========================================================================
+   6 — POP-UP 導線（生成り帯）
+
+   ★ THE ONLY BLOCK IN THIS FILE THAT TOUCHES --red OR --ink-deep. Both are
+   the feature page's colours (設計図 §0.5-D); letting them appear earlier
+   would spend the loudest note in the palette before the hand-off and flatten
+   the depth design. Four red marks and one deep-ink heading, and that is all:
+   women.html carries the marquee here, so men has to make its point quietly.
+   ========================================================================== */
+.popup-band {
+  padding-block: 92px 104px;
+  border-top: 1px solid var(--line);
+}
+
+.popup-band__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  column-gap: 88px;
+  align-items: start;
+}
+
+.popup-band__title {
+  margin-top: 12px;
+  color: var(--ink-deep);
+}
+
+.popup-band .rule--red { margin: 28px 0 30px; }
+
+.popup-band__lead { max-width: 40em; }
+
+.popup-band__meta { margin: 32px 0 40px; }
+
+.popup-band__row {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.popup-band__row dt { flex: 0 0 56px; }
+
+.popup-band__actions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.popup-band__aside .deco--plan {
+  margin: 16px 0 20px;
+  color: var(--ink);
+}
+
+/* The entrance arc on the floor plan — the one drawn red mark on the page. */
+.men-popup .deco__accent { stroke: var(--red); }
+
+.popup-band__aside .body-sm { color: var(--ink-sub); }
+.popup-band__aside .rule--hair { margin: 22px 0; }
+
+@media (max-width: 900px) {
+  .popup-band         { padding-block: 68px 76px; }
+  .popup-band__inner  { grid-template-columns: 1fr; row-gap: 48px; }
+}
+
+@media (max-width: 540px) {
+  .popup-band__actions { flex-wrap: wrap; gap: 20px; }
+}
